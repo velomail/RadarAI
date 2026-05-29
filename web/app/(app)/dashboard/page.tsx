@@ -44,7 +44,7 @@ export default async function DashboardPage() {
               </p>
             </div>
             <Link
-              href={hasProfiles ? '/dashboard/searches' : '/onboarding'}
+              href={hasProfiles ? '/dashboard/searches' : '/dashboard/searches'}
               className="inline-flex h-9 items-center justify-center rounded-full bg-foreground px-4 text-sm font-medium text-background hover:opacity-90"
             >
               {hasProfiles ? 'Run search' : 'Set up first search'}
@@ -101,10 +101,10 @@ export default async function DashboardPage() {
           <div className="glass rounded-2xl p-8 text-center">
             <p className="text-muted-foreground">Set up your first search to start finding matches.</p>
             <Link
-              href="/onboarding"
+              href="/dashboard/searches"
               className="mt-4 inline-flex h-10 items-center justify-center rounded-full bg-primary px-6 text-sm font-medium text-primary-foreground"
             >
-              Get started
+              Set up search
             </Link>
           </div>
         ) : allRuns.length ? (
