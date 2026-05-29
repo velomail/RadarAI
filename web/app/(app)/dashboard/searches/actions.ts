@@ -26,6 +26,56 @@ async function getUser() {
   return data.user;
 }
 
+/** Create a run and kick off the engine for an owned profile. Redirects on quota/resume errors. */
+export async function startProfileSearchRun(profileId: string, userId: string): Promise<string> {
+  const sb = supabaseServiceRole();
+  const { data: profile } = await sb
+    .from('search_profiles')
+    .select('*, resume:resumes(parsed_text)')
+    .eq('id', profileId)
+    .maybeSingle();
+  if (!profile || profile.user_id !== userId) throw new Error('Profile not found.');
+
+  const resumeText: string = profile.resume?.parsed_text || '';
+  if (!resumeText || resumeText.length < 100) {
+    redirect(`${SEARCH_PAGE}?error=resume_missing`);
+  }
+
+  const quota = await consumeDailyQuery(userId);
+  if (!quota.allowed) {
+    redirect(`${SEARCH_PAGE}?error=daily_limit`);
+  }
+
+  const { data: run, error: runErr } = await sb
+    .from('runs')
+    .insert({
+      user_id: userId,
+      search_profile_id: profile.id,
+      status: 'pending',
+      trigger: 'manual',
+    })
+    .select('id')
+    .single();
+  if (runErr || !run) throw new Error(runErr?.message || 'run_create_failed');
+
+  after(async () => {
+    await runEngine({
+      run_id: run.id,
+      user_id: userId,
+      anonymous_session: null,
+      resume_text: resumeText,
+      queries: profile.queries || [],
+      location: profile.location || 'Canada',
+      min_score: profile.min_score || 70,
+      remote_only: !!profile.remote_only,
+      employment_types: profile.employment_types || [],
+      search_focus: profile.search_focus || 'auto',
+    });
+  });
+
+  return run.id;
+}
+
 /** Save criteria from the form, then start a job scan. Results load on the same page. */
 export async function runJobSearch(profileId: string, formData: FormData) {
   const user = await getUser();
@@ -64,50 +114,7 @@ export async function runJobSearch(profileId: string, formData: FormData) {
     .eq('id', profileId);
   if (updateErr) throw new Error(updateErr.message);
 
-  const { data: profile } = await sb
-    .from('search_profiles')
-    .select('*, resume:resumes(parsed_text)')
-    .eq('id', profileId)
-    .maybeSingle();
-  if (!profile) throw new Error('Profile not found.');
-
-  const resumeText: string = profile.resume?.parsed_text || '';
-  if (!resumeText || resumeText.length < 100) {
-    redirect(`${SEARCH_PAGE}?error=resume_missing`);
-  }
-
-  const quota = await consumeDailyQuery(user.id);
-  if (!quota.allowed) {
-    redirect(`${SEARCH_PAGE}?error=daily_limit`);
-  }
-
-  const { data: run, error: runErr } = await sb
-    .from('runs')
-    .insert({
-      user_id: user.id,
-      search_profile_id: profile.id,
-      status: 'pending',
-      trigger: 'manual',
-    })
-    .select('id')
-    .single();
-  if (runErr || !run) throw new Error(runErr?.message || 'run_create_failed');
-
-  after(async () => {
-    await runEngine({
-      run_id: run.id,
-      user_id: user.id,
-      anonymous_session: null,
-      resume_text: resumeText,
-      queries: profile.queries || [],
-      location: profile.location || 'Canada',
-      min_score: profile.min_score || 70,
-      remote_only: !!profile.remote_only,
-      employment_types: profile.employment_types || [],
-      search_focus: profile.search_focus || 'auto',
-    });
-  });
-
+  const runId = await startProfileSearchRun(profileId, user.id);
   revalidatePath(SEARCH_PAGE);
-  redirect(`${SEARCH_PAGE}?run=${run.id}`);
+  redirect(`${SEARCH_PAGE}?run=${runId}`);
 }

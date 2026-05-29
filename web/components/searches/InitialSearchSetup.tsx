@@ -11,7 +11,7 @@ function SetupSubmitButton() {
   const { pending } = useFormStatus();
   return (
     <Button type="submit" size="lg" className="h-11 w-full rounded-xl" disabled={pending}>
-      {pending ? 'Saving…' : 'Save and continue'}
+      {pending ? 'Starting search…' : 'Save and search'}
       <ArrowRight className="ml-2 h-4 w-4" />
     </Button>
   );

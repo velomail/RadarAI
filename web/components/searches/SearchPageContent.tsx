@@ -62,7 +62,7 @@ export async function SearchPageContent({ searchParams }: { searchParams: Search
           </div>
           <h1 className="text-3xl font-bold tracking-tight">Set up your search</h1>
           <p className="mt-2 text-base text-muted-foreground">
-            Upload your resume and set keywords — then search from this screen.
+            Upload your resume and set keywords — your first search starts automatically.
           </p>
         </header>
         <div className="glass w-full rounded-2xl p-6 md:p-8">

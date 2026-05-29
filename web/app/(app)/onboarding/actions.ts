@@ -1,7 +1,9 @@
 'use server';
 
 import { redirect } from 'next/navigation';
+import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
+import { startProfileSearchRun } from '@/app/(app)/dashboard/searches/actions';
 import { MANUAL_SCHEDULE_CRON, SEARCH_PAGE } from '@/lib/constants';
 import { parseQueriesFromForm, parseSearchFocus } from '@/lib/parse-search-form';
 import { resolveResumeIdFromForm } from '@/lib/resume/resolve-resume-from-form';
@@ -38,23 +40,29 @@ export async function createOnboardingProfile(formData: FormData) {
   const sb = supabaseServiceRole();
   const resumeId = await resolveResumeIdFromForm(sb, user.id, formData);
 
-  const { error: profErr } = await sb.from('search_profiles').insert({
-    user_id: user.id,
-    name: parsed.name,
-    resume_id: resumeId,
-    queries,
-    search_focus: searchFocus,
-    location: parsed.location,
-    remote_only: !!parsed.remote_only,
-    min_score: parsed.min_score,
-    schedule_cron: parsed.schedule_cron || MANUAL_SCHEDULE_CRON,
-    notify_email: parsed.notify_email || null,
-    notify_telegram_chat_id: null,
-    active: true,
-  });
-  if (profErr) throw new Error(profErr.message);
+  const { data: profile, error: profErr } = await sb
+    .from('search_profiles')
+    .insert({
+      user_id: user.id,
+      name: parsed.name,
+      resume_id: resumeId,
+      queries,
+      search_focus: searchFocus,
+      location: parsed.location,
+      remote_only: !!parsed.remote_only,
+      min_score: parsed.min_score,
+      schedule_cron: parsed.schedule_cron || MANUAL_SCHEDULE_CRON,
+      notify_email: parsed.notify_email || null,
+      notify_telegram_chat_id: null,
+      active: true,
+    })
+    .select('id')
+    .single();
+  if (profErr || !profile) throw new Error(profErr?.message || 'profile_create_failed');
 
-  redirect(SEARCH_PAGE);
+  const runId = await startProfileSearchRun(profile.id, user.id);
+  revalidatePath(SEARCH_PAGE);
+  redirect(`${SEARCH_PAGE}?run=${runId}`);
 }
 
 async function getUser() {
