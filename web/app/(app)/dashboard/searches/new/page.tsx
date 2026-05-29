@@ -31,7 +31,7 @@ export default async function NewSearchPage() {
       backHref="/dashboard/searches"
       backLabel="Searches"
       title="New search"
-      description="Save criteria — you'll run scans from the search screen."
+      description="Save job title keywords and location. No scan runs until you click Search now on your searches list."
     >
       <form action={createSearchProfile} className="glass flex flex-col gap-8 rounded-2xl p-8">
         <ResumeUploadField compact currentFilename={resume.original_filename} required={false} />
@@ -44,7 +44,7 @@ export default async function NewSearchPage() {
           }}
         />
         <Button type="submit" size="lg" className="self-start">
-          Save search
+          Save search criteria
         </Button>
       </form>
     </DashboardPage>

@@ -56,7 +56,7 @@ export default async function SearchesPage() {
   return (
     <DashboardPage
       title="Your searches"
-      description="Pick a saved search, then click Search now — results load on the same screen."
+      description="Saved criteria only — click Search now on a search when you're ready to scan."
       action={
         <Link
           href="/dashboard/searches/new"

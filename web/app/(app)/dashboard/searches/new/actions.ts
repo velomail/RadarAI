@@ -46,27 +46,23 @@ export async function createSearchProfile(formData: FormData) {
     redirect('/onboarding');
   }
 
-  const { data: created, error } = await sb
-    .from('search_profiles')
-    .insert({
-      user_id: user.id,
-      name: parsed.name,
-      resume_id: resumeId,
-      queries,
-      search_focus: searchFocus,
-      location: parsed.location,
-      remote_only: !!parsed.remote_only,
-      min_score: parsed.min_score,
-      schedule_cron: parsed.schedule_cron || MANUAL_SCHEDULE_CRON,
-      notify_email: parsed.notify_email || null,
-      notify_telegram_chat_id: null,
-      active: true,
-    })
-    .select('id')
-    .single();
-  if (error || !created) throw new Error(error?.message || 'Failed to create search.');
+  const { error } = await sb.from('search_profiles').insert({
+    user_id: user.id,
+    name: parsed.name,
+    resume_id: resumeId,
+    queries,
+    search_focus: searchFocus,
+    location: parsed.location,
+    remote_only: !!parsed.remote_only,
+    min_score: parsed.min_score,
+    schedule_cron: parsed.schedule_cron || MANUAL_SCHEDULE_CRON,
+    notify_email: parsed.notify_email || null,
+    notify_telegram_chat_id: null,
+    active: true,
+  });
+  if (error) throw new Error(error.message);
 
   revalidatePath('/dashboard');
   revalidatePath('/dashboard/searches');
-  redirect(`/dashboard/searches/${created.id}`);
+  redirect('/dashboard/searches');
 }
