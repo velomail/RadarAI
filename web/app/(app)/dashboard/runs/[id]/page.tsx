@@ -25,7 +25,7 @@ export default async function LegacyRunRedirect({ params }: PageProps) {
   if (run.user_id !== user.id) notFound();
 
   if (run.search_profile_id) {
-    redirect(`/dashboard/searches/${run.search_profile_id}?run=${id}`);
+    redirect(`/dashboard/searches?run=${id}`);
   }
 
   redirect('/dashboard/searches');

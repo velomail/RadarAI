@@ -44,10 +44,10 @@ export default async function DashboardPage() {
               </p>
             </div>
             <Link
-              href={hasProfiles ? '/dashboard/searches/new' : '/onboarding'}
+              href={hasProfiles ? '/dashboard/searches' : '/onboarding'}
               className="inline-flex h-9 items-center justify-center rounded-full bg-foreground px-4 text-sm font-medium text-background hover:opacity-90"
             >
-              {hasProfiles ? 'New search' : 'Set up first search'}
+              {hasProfiles ? 'Run search' : 'Set up first search'}
             </Link>
           </div>
           <DailyUsageMeter
@@ -62,8 +62,8 @@ export default async function DashboardPage() {
           <ul className="mt-4 space-y-3 text-sm">
             <li>
               <Link href="/dashboard/searches" className="font-medium text-primary hover:underline">
-                Your saved searches →
-              </Link>
+              Your search →
+            </Link>
             </li>
             <li>
               <Link href="/dashboard/settings" className="text-muted-foreground hover:text-foreground">
@@ -144,7 +144,7 @@ function statusBadgeVariant(status: Run['status']) {
 function RunRow({ run }: { run: Run }) {
   const date = new Date(run.started_at);
   const href = run.search_profile_id
-    ? `/dashboard/searches/${run.search_profile_id}?run=${run.id}`
+    ? `/dashboard/searches?run=${run.id}`
     : `/dashboard/runs/${run.id}`;
 
   return (

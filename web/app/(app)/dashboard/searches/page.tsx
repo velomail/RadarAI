@@ -1,16 +1,20 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { Plus, Search } from 'lucide-react';
-import { DailyUsageMeter } from '@/components/dashboard/DailyUsageMeter';
-import { SearchProfileCard } from '@/components/dashboard/SearchProfileCard';
-import { DashboardPage } from '@/components/layout/DashboardPage';
-import { AccountResumeForm } from '@/components/profile/AccountResumeForm';
+import { Search } from 'lucide-react';
+import { JobSearchCard } from '@/components/searches/JobSearchCard';
+import { RunPoller } from '@/components/runs/RunPoller';
+import { getUserPlan } from '@/lib/plan';
 import { supabaseServer, supabaseServiceRole } from '@/lib/supabase/server';
 import { getDailyUsage } from '@/lib/usage/consume-daily-query';
 import type { Resume, SearchProfile } from '@/lib/types';
-import { updateAccountResume } from './resume-actions';
 
-export default async function SearchesPage() {
+interface PageProps {
+  searchParams: Promise<{ run?: string; error?: string }>;
+}
+
+export default async function SearchesPage({ searchParams }: PageProps) {
+  const { run: runId, error } = await searchParams;
+
   const supabase = await supabaseServer();
   const {
     data: { user },
@@ -23,7 +27,8 @@ export default async function SearchesPage() {
       .from('search_profiles')
       .select('*')
       .eq('user_id', user.id)
-      .order('updated_at', { ascending: false }),
+      .order('updated_at', { ascending: false })
+      .limit(1),
     sb
       .from('resumes')
       .select('*')
@@ -33,61 +38,69 @@ export default async function SearchesPage() {
       .maybeSingle(),
   ]);
 
-  const allProfiles = (profiles as SearchProfile[]) ?? [];
+  const profileList = (profiles as SearchProfile[]) ?? [];
+  const profile = profileList[0] ?? null;
   const resume = latestResume as Resume | null;
   const dailyUsage = await getDailyUsage(user.id);
+  const tier = await getUserPlan(user.id);
 
-  if (!allProfiles.length) {
+  if (!profile) {
     return (
-      <DashboardPage title="Your searches" description="Save criteria and run resume-aware scans.">
-        <div className="glass rounded-2xl p-10 text-center">
-          <p className="text-muted-foreground">Upload your resume and define what roles you want.</p>
+      <div className="mx-auto flex w-full max-w-lg flex-col items-center px-2">
+        <header className="mb-8 text-center">
+          <h1 className="text-3xl font-bold tracking-tight">Job search</h1>
+          <p className="mt-2 text-muted-foreground">Set up your first search to get started.</p>
+        </header>
+        <div className="glass w-full rounded-2xl p-10 text-center">
           <Link
             href="/onboarding"
-            className="mt-6 inline-flex h-11 items-center justify-center rounded-full bg-primary px-8 text-sm font-medium text-primary-foreground"
+            className="inline-flex h-11 items-center justify-center rounded-full bg-primary px-8 text-sm font-medium text-primary-foreground"
           >
             Set up first search
           </Link>
         </div>
-      </DashboardPage>
+      </div>
     );
   }
 
+  if (runId) {
+    const { data: run } = await sb
+      .from('runs')
+      .select('user_id, search_profile_id')
+      .eq('id', runId)
+      .maybeSingle();
+    if (!run || run.user_id !== user.id || run.search_profile_id !== profile.id) {
+      redirect('/dashboard/searches');
+    }
+  }
+
   return (
-    <DashboardPage
-      title="Your searches"
-      description="Saved criteria only — click Search now on a search when you're ready to scan."
-      action={
-        <Link
-          href="/dashboard/searches/new"
-          className="inline-flex h-10 items-center gap-2 rounded-full bg-primary px-5 text-sm font-medium text-primary-foreground hover:opacity-90"
-        >
-          <Plus className="h-4 w-4" />
-          New
-        </Link>
-      }
-    >
-      <div className="glass rounded-2xl p-5">
-        <DailyUsageMeter
-          queriesToday={dailyUsage.queries_today}
-          limit={dailyUsage.limit}
-          plan={dailyUsage.plan}
+    <div className="mx-auto flex w-full max-w-lg flex-col items-center px-2">
+      <header className="mb-8 w-full text-center">
+        <div className="mb-3 inline-flex items-center gap-2 rounded-full glass-subtle px-4 py-2">
+          <Search className="h-4 w-4 text-primary" />
+          <span className="text-xs font-medium tracking-wide text-muted-foreground">Job search</span>
+        </div>
+        <h1 className="text-3xl font-bold tracking-tight">Your search</h1>
+        <p className="mt-2 text-base text-muted-foreground">
+          Set keywords and location, then search — results appear below.
+        </p>
+      </header>
+
+      <div className="glass w-full rounded-2xl p-6 md:p-8">
+        <JobSearchCard
+          profile={profile}
+          resumeFilename={resume?.original_filename}
+          dailyUsage={dailyUsage}
+          error={error ?? null}
         />
       </div>
 
-      <div className="flex flex-col gap-4">
-        <div className="inline-flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-          <Search className="h-3.5 w-3.5" />
-          Saved searches
+      {runId ? (
+        <div className="mt-8 w-full">
+          <RunPoller runId={runId} tier={tier} />
         </div>
-        {allProfiles.map((profile) => (
-          <SearchProfileCard key={profile.id} profile={profile} />
-        ))}
-      </div>
-
-      <div id="resume">
-        <AccountResumeForm currentFilename={resume?.original_filename} action={updateAccountResume} />
-      </div>
-    </DashboardPage>
+      ) : null}
+    </div>
   );
 }

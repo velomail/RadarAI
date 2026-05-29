@@ -41,7 +41,7 @@ export default async function EditSearchPage({ params }: PageProps) {
 
   return (
     <DashboardPage
-      backHref={`/dashboard/searches/${id}`}
+      backHref="/dashboard/searches"
       backLabel="Search"
       title="Edit search"
       description="Update keywords, location, or notifications."
@@ -53,7 +53,7 @@ export default async function EditSearchPage({ params }: PageProps) {
             {latestResume?.original_filename || 'Not on file'}
           </span>
           {' · '}
-          <Link href="/dashboard/searches#resume" className="font-medium text-primary hover:underline">
+          <Link href="/dashboard/searches" className="font-medium text-primary hover:underline">
             Update resume
           </Link>
         </div>

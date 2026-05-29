@@ -1,12 +1,14 @@
 'use server';
 
+import { after } from 'next/server';
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
+import { runEngine } from '@/lib/engine';
 import { MANUAL_SCHEDULE_CRON } from '@/lib/constants';
 import { parseQueriesFromForm, parseSearchFocus } from '@/lib/parse-search-form';
-import { resolveResumeIdFromForm } from '@/lib/resume/resolve-resume-from-form';
 import { supabaseServer, supabaseServiceRole } from '@/lib/supabase/server';
+import { consumeDailyQuery } from '@/lib/usage/consume-daily-query';
 
 const Schema = z.object({
   name: z.string().min(1).max(120),
@@ -24,7 +26,8 @@ async function getUser() {
   return data.user;
 }
 
-export async function updateProfile(profileId: string, formData: FormData) {
+/** Save criteria from the form, then start a job scan. Results load on the same page. */
+export async function runJobSearch(profileId: string, formData: FormData) {
   const user = await getUser();
   const searchFocus = parseSearchFocus(formData);
   const queries = parseQueriesFromForm(formData, searchFocus);
@@ -41,18 +44,15 @@ export async function updateProfile(profileId: string, formData: FormData) {
   const sb = supabaseServiceRole();
   const { data: existing } = await sb
     .from('search_profiles')
-    .select('user_id')
+    .select('user_id, resume_id')
     .eq('id', profileId)
     .maybeSingle();
   if (!existing || existing.user_id !== user.id) throw new Error('Profile not found.');
 
-  const resumeId = await resolveResumeIdFromForm(sb, user.id, formData);
-
-  const { error } = await sb
+  const { error: updateErr } = await sb
     .from('search_profiles')
     .update({
       name: parsed.name,
-      resume_id: resumeId,
       queries,
       search_focus: searchFocus,
       location: parsed.location,
@@ -62,24 +62,53 @@ export async function updateProfile(profileId: string, formData: FormData) {
       notify_email: parsed.notify_email || null,
     })
     .eq('id', profileId);
-  if (error) throw new Error(error.message);
+  if (updateErr) throw new Error(updateErr.message);
 
-  revalidatePath('/dashboard');
-  revalidatePath('/dashboard/searches');
-  redirect('/dashboard/searches');
-}
-
-export async function deleteProfile(profileId: string) {
-  const user = await getUser();
-  const sb = supabaseServiceRole();
-  const { data: existing } = await sb
+  const { data: profile } = await sb
     .from('search_profiles')
-    .select('user_id')
+    .select('*, resume:resumes(parsed_text)')
     .eq('id', profileId)
     .maybeSingle();
-  if (!existing || existing.user_id !== user.id) throw new Error('Profile not found.');
-  await sb.from('search_profiles').delete().eq('id', profileId);
+  if (!profile) throw new Error('Profile not found.');
+
+  const resumeText: string = profile.resume?.parsed_text || '';
+  if (!resumeText || resumeText.length < 100) {
+    redirect('/dashboard/searches?error=resume_missing');
+  }
+
+  const quota = await consumeDailyQuery(user.id);
+  if (!quota.allowed) {
+    redirect('/dashboard/searches?error=daily_limit');
+  }
+
+  const { data: run, error: runErr } = await sb
+    .from('runs')
+    .insert({
+      user_id: user.id,
+      search_profile_id: profile.id,
+      status: 'pending',
+      trigger: 'manual',
+    })
+    .select('id')
+    .single();
+  if (runErr || !run) throw new Error(runErr?.message || 'run_create_failed');
+
+  after(async () => {
+    await runEngine({
+      run_id: run.id,
+      user_id: user.id,
+      anonymous_session: null,
+      resume_text: resumeText,
+      queries: profile.queries || [],
+      location: profile.location || 'Canada',
+      min_score: profile.min_score || 70,
+      remote_only: !!profile.remote_only,
+      employment_types: profile.employment_types || [],
+      search_focus: profile.search_focus || 'auto',
+    });
+  });
+
   revalidatePath('/dashboard');
   revalidatePath('/dashboard/searches');
-  redirect('/dashboard/searches');
+  redirect(`/dashboard/searches?run=${run.id}`);
 }
