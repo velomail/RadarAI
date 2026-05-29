@@ -32,20 +32,20 @@ export default function LandingPage() {
           honest experience comparison for every match.
         </p>
         <div className="mb-6 mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
-          <Link href="/demo">
+          <Link href="/sign-up">
             <Button size="lg" className="group h-12 rounded-xl px-8 text-base">
-              Try free demo
+              Create free account
               <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
             </Button>
           </Link>
-          <Link href="/sign-up">
+          <Link href="/sign-in">
             <Button size="lg" variant="outline" className="glass h-12 rounded-xl px-8 text-base">
-              Create free account
+              Sign in
             </Button>
           </Link>
         </div>
         <p className="text-sm text-muted-foreground">
-          1 free guest search · 3 searches per day on a free account. Pro digests — coming soon.
+          Free plan includes 3 AI-powered searches per day. Pro digests — coming soon.
         </p>
       </section>
 

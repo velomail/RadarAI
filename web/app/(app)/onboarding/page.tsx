@@ -15,7 +15,7 @@ export default async function OnboardingPage() {
     .select('id', { count: 'exact', head: true })
     .eq('user_id', user.id);
 
-  if (count && count > 0) redirect('/dashboard');
+  if (count && count > 0) redirect('/dashboard/searches');
 
   return <OnboardingForm />;
 }

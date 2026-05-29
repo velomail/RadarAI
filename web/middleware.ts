@@ -9,7 +9,7 @@ function authErrorMessage(request: NextRequest): string | null {
   return description || code || error;
 }
 
-/** Supabase redirects to Site URL (/) with ?error= when a magic link expires. */
+/** Supabase redirects to Site URL (/) with ?error= when OAuth or auth fails. */
 function redirectAuthErrorToSignIn(request: NextRequest) {
   const message = authErrorMessage(request);
   if (!message) return null;

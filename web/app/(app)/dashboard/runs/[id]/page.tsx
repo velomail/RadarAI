@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
-import { RunPoller } from '@/app/demo/runs/[id]/RunPoller';
+import { RunPoller } from '@/components/runs/RunPoller';
 import { getUserPlan } from '@/lib/plan';
 import { supabaseServer, supabaseServiceRole } from '@/lib/supabase/server';
 
@@ -26,7 +26,7 @@ export default async function DashboardRunPage({ params }: PageProps) {
   return (
     <section className="flex flex-col gap-6">
       <Link href="/dashboard" className="text-sm text-muted-foreground hover:text-foreground">
-        ← Searches
+        ← Home
       </Link>
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">Search results</h1>
@@ -34,7 +34,7 @@ export default async function DashboardRunPage({ params }: PageProps) {
           Ranked matches with role summaries and resume comparison
         </p>
       </div>
-      <RunPoller runId={id} sessionHint="auth" tier={tier} />
+      <RunPoller runId={id} tier={tier} />
     </section>
   );
 }

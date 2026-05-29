@@ -16,7 +16,6 @@ export function DataTrustNotice({ compact }: { compact?: boolean }) {
           <ul className="list-inside list-disc space-y-1 text-sm text-muted-foreground">
             <li>Resume PDFs are stored in private Supabase Storage (not public).</li>
             <li>We only use your resume text to score jobs — never sold to third parties.</li>
-            <li>Demo uploads auto-delete within 24 hours.</li>
             <li>Delete your account data anytime from Settings.</li>
           </ul>
         </div>

@@ -1,41 +1,15 @@
 import Link from 'next/link';
 import { Radar } from 'lucide-react';
 import { AuthHashRedirect } from '@/components/auth/AuthHashRedirect';
-import { MagicLinkForm } from '@/components/auth/magic-link-form';
+import { OAuthButtons } from '@/components/auth/oauth-buttons';
 import { formatAuthError } from '@/lib/auth-errors';
 
 interface PageProps {
-  searchParams: Promise<{ check?: string; email?: string; error?: string }>;
+  searchParams: Promise<{ error?: string }>;
 }
 
 export default async function SignUpPage({ searchParams }: PageProps) {
   const sp = await searchParams;
-
-  if (sp.check === '1') {
-    return (
-      <main className="gradient-mesh relative flex min-h-screen flex-col px-6 py-12">
-        <div className="mx-auto mb-10 w-full max-w-6xl">
-          <Link href="/" className="group inline-flex items-center gap-2">
-            <div className="relative">
-              <div className="absolute inset-0 rounded-full bg-primary/20 blur-lg transition-colors group-hover:bg-primary/30" />
-              <Radar className="relative h-7 w-7 text-primary" />
-            </div>
-            <span className="text-lg font-semibold tracking-tight">RadarAI</span>
-          </Link>
-        </div>
-        <div className="glass mx-auto w-full max-w-md rounded-2xl p-8 text-center">
-          <h1 className="text-2xl font-bold">Check your email</h1>
-          <p className="mt-2 text-muted-foreground">
-            We sent a link to <strong>{sp.email}</strong>. Open it in <strong>this browser</strong>{' '}
-            to finish setup.
-          </p>
-          <Link href="/sign-up" className="mt-6 inline-block text-sm font-medium text-primary hover:underline">
-            Use a different email →
-          </Link>
-        </div>
-      </main>
-    );
-  }
 
   return (
     <main className="gradient-mesh relative flex min-h-screen flex-col">
@@ -75,7 +49,7 @@ export default async function SignUpPage({ searchParams }: PageProps) {
               );
             })() : null}
 
-            <MagicLinkForm redirectTo="/onboarding" fromSignUp />
+            <OAuthButtons redirectTo="/onboarding" />
           </div>
           <p className="mt-6 text-center text-sm text-muted-foreground">
             Already signed up?{' '}

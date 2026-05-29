@@ -13,8 +13,8 @@ export function SiteFooter() {
           </p>
         </div>
         <nav className="flex flex-wrap gap-5">
-          <Link href="/demo" className="transition-colors hover:text-foreground">
-            Try demo
+          <Link href="/sign-up" className="transition-colors hover:text-foreground">
+            Sign up
           </Link>
           <Link href="/sign-in" className="transition-colors hover:text-foreground">
             Sign in

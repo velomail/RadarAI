@@ -36,9 +36,11 @@ npm run saas:dev
 
 After changing `ENGINE_MODE` on Vercel you **must redeploy** (env vars are baked in at build/runtime for server functions).
 
-Production URL: **https://rapidai-velomails-projects.vercel.app**
+Production URL: **https://web-ashen-sigma-71.vercel.app**
 
-### Switch to mock data (MVP / testing)
+**Recommendation for a marketable deployment:** use **live** engine in production (`ENGINE_MODE` unset or removed). Reserve `mock` for local development only.
+
+### Switch to mock data (local / staging only)
 
 From repo root:
 

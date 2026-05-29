@@ -1,75 +1,49 @@
 /** Map Supabase auth errors to clearer copy for the sign-in UI. */
 export function formatAuthError(message: string): { title: string; detail: string } {
   const lower = message.toLowerCase();
+
   if (
-    lower.includes('code challenge') ||
-    lower.includes('code_verifier') ||
-    lower.includes('bad_code_verifier')
+    lower.includes('access_denied') ||
+    lower.includes('user cancelled') ||
+    lower.includes('user canceled')
   ) {
     return {
-      title: 'Sign-in link expired or wrong browser',
-      detail:
-        'Request a fresh link below, then open it in this same browser tab (not a different browser or Gmail in-app preview). Use only http://localhost:3000 — not 127.0.0.1. Old links fail after a new request.',
+      title: 'Sign-in cancelled',
+      detail: 'You closed the Google or GitHub sign-in window. Try again when ready.',
     };
   }
-  if (lower.includes('signups not allowed for otp') || lower.includes('otp_disabled')) {
-    return {
-      title: 'Sign-ups disabled in Supabase',
-      detail:
-        'Turn on Authentication → Providers → Email → “Enable Email provider” and “Confirm email” (or disable confirm if you want instant access). Also enable Authentication → Settings → “Allow new users to sign up”. Then try again with jesse03hiles@gmail.com.',
-    };
-  }
-  if (lower.includes('only send testing emails to your own email')) {
-    const match = message.match(/your own email address \(([^)]+)\)/i);
-    const allowed = match?.[1] ?? 'your Resend account email';
-    return {
-      title: 'Wrong email for test sender',
-      detail: `With sender onboarding@resend.dev, magic links can only go to ${allowed}. You entered a different address — use that exact email on sign-in, or verify a domain at resend.com/domains.`,
-    };
-  }
-  if (
-    lower.includes('confirmation email') ||
-    lower.includes('sending email') ||
-    lower.includes('smtp')
-  ) {
-    return {
-      title: 'Could not send sign-in email',
-      detail:
-        'Check Supabase → Logs → Auth for details. With onboarding@resend.dev, sign in using the same email as your Resend account, or verify a domain and change the SMTP sender.',
-    };
-  }
-  if (lower.includes('rate limit') || lower.includes('too many')) {
-    return {
-      title: 'Email rate limit exceeded',
-      detail:
-        'Supabase limits how many magic-link emails can be sent per hour (often ~4 per address while testing). Wait about an hour, use the last link in your inbox, or configure custom SMTP with Resend in Supabase → Authentication → SMTP (see docs/PROVISIONING.md).',
-    };
-  }
-  if (lower.includes('redirect') || lower.includes('url')) {
+
+  if (lower.includes('redirect') || lower.includes('url') || lower.includes('callback')) {
     return {
       title: 'Redirect URL not allowed',
       detail:
-        'Add every URL you use to Supabase → Authentication → URL Configuration → Redirect URLs: http://localhost:3000/auth/callback**, https://rapidai-velomails-projects.vercel.app/auth/callback**, https://web-ashen-sigma-71.vercel.app/auth/callback**',
+        'Add your app callback to Supabase → Authentication → URL Configuration → Redirect URLs: https://web-ashen-sigma-71.vercel.app/auth/callback** and http://localhost:3000/auth/callback**. See docs/AUTH_OAUTH_SETUP.md.',
     };
   }
-  if (
-    lower.includes('otp_expired') ||
-    lower.includes('access_denied') ||
-    (lower.includes('expired') && lower.includes('email')) ||
-    (lower.includes('invalid') && lower.includes('has expired'))
-  ) {
+
+  if (lower.includes('provider is not enabled') || lower.includes('unsupported provider')) {
     return {
-      title: 'Email link expired or already used',
+      title: 'Sign-in provider not enabled',
       detail:
-        'Magic links expire quickly and work only once. Go to Sign in, request a new link, and open only the newest email in this same browser (not Gmail preview). Do not click older emails.',
+        'Enable Google and GitHub under Supabase → Authentication → Providers. See docs/AUTH_OAUTH_SETUP.md.',
     };
   }
-  if (lower.includes('invalid') && lower.includes('link')) {
+
+  if (lower.includes('invalid client') || lower.includes('oauth')) {
     return {
-      title: 'Link expired or already used',
+      title: 'OAuth configuration error',
       detail:
-        'Request a fresh magic link below. Open only the newest email, in this same browser (not Gmail’s in-app browser).',
+        'Check Google Cloud / GitHub OAuth app credentials in Supabase → Authentication → Providers. See docs/AUTH_OAUTH_SETUP.md.',
     };
   }
+
+  if (lower.includes('signups not allowed')) {
+    return {
+      title: 'Sign-ups disabled',
+      detail:
+        'Enable Authentication → Settings → “Allow new users to sign up” in Supabase, then try again.',
+    };
+  }
+
   return { title: 'Sign-in failed', detail: message };
 }

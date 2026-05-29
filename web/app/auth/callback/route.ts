@@ -46,7 +46,7 @@ export async function GET(req: NextRequest) {
   if (!code && !(token_hash && type)) {
     return authErrorRedirect(
       url.origin,
-      'Invalid or expired sign-in link. Request a new link and open it in the same browser you used to sign up.',
+      'Invalid or expired sign-in session. Try signing in again with Google or GitHub.',
     );
   }
 

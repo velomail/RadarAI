@@ -71,15 +71,7 @@ function RunLoading({ status, elapsed }: { status: 'pending' | 'running'; elapse
   );
 }
 
-export function RunPoller({
-  runId,
-  sessionHint,
-  tier: tierProp,
-}: {
-  runId: string;
-  sessionHint: 'demo' | 'auth';
-  tier?: UserPlan;
-}) {
+export function RunPoller({ runId, tier: tierProp }: { runId: string; tier?: UserPlan }) {
   const [state, setState] = useState<Status | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [elapsed, setElapsed] = useState(0);
@@ -90,8 +82,7 @@ export function RunPoller({
 
     const tick = async () => {
       try {
-        const url = `/api/runs/${runId}${sessionHint === 'demo' ? '?demo=1' : ''}`;
-        const res = await fetch(url, { cache: 'no-store' });
+        const res = await fetch(`/api/runs/${runId}`, { cache: 'no-store' });
         if (!res.ok) {
           if (res.status === 404) throw new Error('Run not found.');
           if (res.status === 403) throw new Error('Not authorized for this run.');
@@ -115,7 +106,7 @@ export function RunPoller({
       clearTimeout(timer);
       clearInterval(elapsedTimer);
     };
-  }, [runId, sessionHint]);
+  }, [runId]);
 
   if (error) {
     return (
@@ -149,7 +140,7 @@ export function RunPoller({
     );
   }
 
-  const tier = tierProp ?? state.plan ?? (sessionHint === 'demo' ? 'free' : 'free');
+  const tier = tierProp ?? state.plan ?? 'free';
 
   return (
     <div className="flex flex-col gap-8">

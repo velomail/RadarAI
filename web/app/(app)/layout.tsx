@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { Radar } from 'lucide-react';
+import { AppNav } from '@/components/layout/AppNav';
 import { MockModeBanner } from '@/components/layout/MockModeBanner';
 import { APP_NAME } from '@/lib/brand';
 import { supabaseServer } from '@/lib/supabase/server';
@@ -26,17 +27,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
               </div>
               <span>{APP_NAME}</span>
             </Link>
-            <nav className="flex items-center gap-4 text-sm">
-              <Link href="/dashboard" className="text-muted-foreground transition-colors hover:text-foreground">
-                Searches
-              </Link>
-              <Link
-                href="/dashboard/settings"
-                className="text-muted-foreground transition-colors hover:text-foreground"
-              >
-                Settings
-              </Link>
-            </nav>
+            <AppNav />
           </div>
           <div className="flex items-center gap-3 text-sm">
             <span className="hidden text-muted-foreground md:inline">{user.email}</span>

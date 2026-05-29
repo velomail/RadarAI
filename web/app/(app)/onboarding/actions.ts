@@ -85,7 +85,7 @@ export async function createOnboardingProfile(formData: FormData) {
   });
   if (profErr) throw new Error(profErr.message);
 
-  redirect('/dashboard');
+  redirect('/dashboard/searches');
 }
 
 async function getUser() {

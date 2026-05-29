@@ -9,6 +9,12 @@ Use this as the central entry point for developer docs.
 - `ENV_EXAMPLE.md` - minimal env template for the SaaS app.
 - `SECURITY_AUDIT.md` - latest security findings and key-rotation checklist.
 
+## Launch
+
+- `MVP_COMPLETE.md` - **finish MVP** (OAuth, DB migration, smoke test).
+- `AUTH_OAUTH_SETUP.md` - **Google + GitHub sign-in** (no email domain).
+- `PRODUCTHUNT_LAUNCH.md` - Product Hunt positioning and checklist.
+
 ## Setup and Deployment
 
 - `PROVISIONING.md` - first-time Supabase and Vercel setup.

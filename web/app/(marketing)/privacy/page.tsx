@@ -30,8 +30,8 @@ export default function PrivacyPage() {
           <h2 className="text-lg font-semibold">Information we collect</h2>
           <ul className="list-inside list-disc space-y-2 text-sm leading-relaxed text-muted-foreground">
             <li>
-              <strong className="text-foreground">Account:</strong> email address when you sign up or
-              request a magic link.
+              <strong className="text-foreground">Account:</strong> email and profile from Google or
+              GitHub when you sign in (we do not use password or magic-link email sign-in).
             </li>
             <li>
               <strong className="text-foreground">Resume:</strong> PDF uploads and extracted text used
@@ -73,8 +73,12 @@ export default function PrivacyPage() {
               private file storage for resumes.
             </li>
             <li>
-              <strong className="text-foreground">Resend</strong> — transactional email (sign-in links
-              and optional run notifications).
+              <strong className="text-foreground">Google / GitHub</strong> — OAuth sign-in (authentication
+              only; we receive email and basic profile from the provider you choose).
+            </li>
+            <li>
+              <strong className="text-foreground">Resend</strong> — optional run notification emails
+              (not used for sign-in).
             </li>
             <li>
               <strong className="text-foreground">OpenAI</strong> — AI scoring and summaries when live
@@ -91,19 +95,8 @@ export default function PrivacyPage() {
         </section>
 
         <section className="mt-10 space-y-3">
-          <h2 className="text-lg font-semibold">Demo mode</h2>
-          <p className="text-sm leading-relaxed text-muted-foreground">
-            The public demo at <Link href="/demo" className="text-primary hover:underline">/demo</Link>{' '}
-            lets you run a search without an account. Demo resume uploads are stored temporarily and
-            auto-deleted within 24 hours. Demo runs use representative fixture data when the app is in
-            mock engine mode.
-          </p>
-        </section>
-
-        <section className="mt-10 space-y-3">
           <h2 className="text-lg font-semibold">Retention &amp; deletion</h2>
           <ul className="list-inside list-disc space-y-2 text-sm leading-relaxed text-muted-foreground">
-            <li>Demo uploads: deleted within 24 hours.</li>
             <li>Account data: kept while your account is active.</li>
             <li>
               You may delete your data from <strong className="text-foreground">Settings</strong> in
@@ -137,7 +130,7 @@ export default function PrivacyPage() {
         </section>
 
         <p className="mt-12 rounded-lg border border-border bg-muted/40 px-4 py-3 text-xs text-muted-foreground">
-          This policy is provided for transparency during MVP and investor demos. It is not legal
+          This policy is provided for transparency during MVP. It is not legal
           advice. Consult counsel before a commercial launch in regulated markets.
         </p>
       </article>

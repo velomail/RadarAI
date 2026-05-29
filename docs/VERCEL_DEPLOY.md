@@ -17,20 +17,21 @@ In **Project → Settings → Environment Variables**, add every variable from `
 | `NEXT_PUBLIC_SUPABASE_URL` | same as local |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | JWT `eyJ...` **anon** key from Supabase API settings |
 | `SUPABASE_SERVICE_ROLE_KEY` | service_role key (server only) |
-| `NEXT_PUBLIC_APP_URL` | `https://<your-project>.vercel.app` (update after first deploy) |
-| `RAPIDAPI_KEY` | your RapidAPI key |
-| `LINKEDIN_RAPIDAPI_HOST` | `linkedin-job-search-api.p.rapidapi.com` |
-| `LINKEDIN_RAPIDAPI_KEY` | usually same as `RAPIDAPI_KEY` |
-| `LINKEDIN_PRIMARY_PATH` | `/active-jb-24h` |
-| `LINKEDIN_WIDEN_PATH` | `/active-jb-7d` |
-| `LINKEDIN_QUERY_PARAM` | `title_filter` |
-| `LINKEDIN_LOCATION_PARAM` | `location_filter` |
+| `NEXT_PUBLIC_APP_URL` | `https://web-ashen-sigma-71.vercel.app` |
+| `ADZUNA_APP_ID` | from [Adzuna API](https://developer.adzuna.com/) |
+| `ADZUNA_APP_KEY` | from Adzuna |
+| `ADZUNA_COUNTRY` | `ca` (or `us`, `gb`, …) |
 | `OPENAI_API_KEY` | your OpenAI key |
 | `CRON_SECRET` | same random hex as local |
 | `RESEND_API_KEY` | your Resend key |
-| `EMAIL_FROM` | `RadarAI <onboarding@resend.dev>` or your verified domain |
+| `EMAIL_FROM` | verified domain after launch — see [AUTH_EMAIL_SETUP.md](AUTH_EMAIL_SETUP.md) |
 | `RESEND_DAILY_HARD_CAP` | `90` |
-| `ENGINE_MODE` | `mock` for MVP (no RapidAPI/OpenAI) — see [ENGINE_MODE.md](ENGINE_MODE.md) |
+
+Do **not** set `ENGINE_MODE` on Vercel (live by default). Use `ENGINE_MODE=mock` only in local `.env.local` for dev.
+
+Optional: `RAPIDAPI_KEY`, LinkedIn vars (not used by current live fetch), `TELEGRAM_BOT_TOKEN`, OpenAI tuning vars.
+
+Sync from local: `npm run saas:env:push` then `npm run saas:deploy:only`.
 
 Apply to **Production** and **Preview**.
 

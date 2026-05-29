@@ -1,7 +1,12 @@
 /**
- * Push env vars from .env.local to Vercel and deploy to production.
- * Run from repo root:  npm run saas:deploy
- * Requires:  npx vercel login   (once)
+ * Deploy to Vercel production (deploy only — fast path).
+ *
+ *   npm run saas:deploy:only     → deploy (default)
+ *   npm run saas:deploy          → same as deploy:only
+ *   npm run saas:env:push        → upload env from .env.local (slow on Windows)
+ *   npm run saas:adzuna:push     → Adzuna vars only
+ *
+ * Env: use Vercel dashboard or saas:env:push — not bundled into every deploy.
  */
 
 import { spawnSync } from 'child_process';
@@ -11,27 +16,29 @@ import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const webRoot = path.join(__dirname, '..');
-const envPath = path.join(webRoot, '.env.local');
 
 const ENV_KEYS = [
   'NEXT_PUBLIC_SUPABASE_URL',
   'NEXT_PUBLIC_SUPABASE_ANON_KEY',
   'SUPABASE_SERVICE_ROLE_KEY',
   'NEXT_PUBLIC_APP_URL',
-  'RAPIDAPI_KEY',
-  'LINKEDIN_RAPIDAPI_HOST',
-  'LINKEDIN_RAPIDAPI_KEY',
-  'LINKEDIN_PRIMARY_PATH',
-  'LINKEDIN_WIDEN_PATH',
-  'LINKEDIN_QUERY_PARAM',
-  'LINKEDIN_LOCATION_PARAM',
+  'ADZUNA_APP_ID',
+  'ADZUNA_APP_KEY',
+  'ADZUNA_COUNTRY',
+  'ADZUNA_MAX_PRIMARY_QUERIES',
+  'ADZUNA_MAX_WIDEN_QUERIES',
+  'ADZUNA_FETCH_DELAY_MS',
   'OPENAI_API_KEY',
+  'OPENAI_MODEL',
+  'OPENAI_SCORE_CONCURRENCY',
+  'OPENAI_MAX_JOBS_TO_SCORE',
+  'OPENAI_SCORE_DESCRIPTION_MAX_CHARS',
   'CRON_SECRET',
   'RESEND_API_KEY',
   'EMAIL_FROM',
   'RESEND_DAILY_HARD_CAP',
-  'TELEGRAM_BOT_TOKEN',
-  'ENGINE_MODE',
+  'RADAR_TIMEZONE',
+  'RADAR_WINDOW_MINUTES',
 ];
 
 function parseEnv(filePath) {
@@ -57,73 +64,65 @@ function parseEnv(filePath) {
   return out;
 }
 
-function run(cmd, args, opts = {}) {
-  const r = spawnSync(cmd, args, {
+/** Run vercel CLI without shell:true (avoids Windows hang after each command). */
+function runVercel(args, { inherit = true } = {}) {
+  const cmd = process.platform === 'win32' ? 'npx.cmd' : 'npx';
+  const r = spawnSync(cmd, ['vercel', ...args], {
     cwd: webRoot,
-    stdio: 'inherit',
-    shell: process.platform === 'win32',
-    ...opts,
+    encoding: inherit ? 'utf8' : undefined,
+    shell: false,
+    stdio: inherit ? ['ignore', 'pipe', 'pipe'] : 'inherit',
+    env: { ...process.env, CI: '1' },
   });
-  if (r.status !== 0) process.exit(r.status ?? 1);
+  if (inherit) {
+    if (r.stdout) process.stdout.write(r.stdout);
+    if (r.stderr) process.stderr.write(r.stderr);
+  }
+  return r.status ?? 1;
 }
 
-function vercel(args) {
-  return spawnSync('npx', ['vercel', ...args], {
-    cwd: webRoot,
-    stdio: 'inherit',
-    shell: true,
-  });
-}
-
-const env = parseEnv(envPath);
+const envOnly = process.argv.includes('--env-only');
+const withEnv = process.argv.includes('--with-env');
 
 console.log('Checking Vercel login...');
-const who = spawnSync('npx', ['vercel', 'whoami'], { cwd: webRoot, shell: true, encoding: 'utf8' });
-if (who.status !== 0 || (who.stdout || '').includes('No existing credentials')) {
-  console.error('\nNot logged in. Run:  npx vercel login\nThen run this script again.');
+const who = runVercel(['whoami']);
+if (who !== 0) {
+  console.error('\nNot logged in. Run:  cd web && npx vercel login');
   process.exit(1);
 }
-console.log('Logged in as:', (who.stdout || '').trim());
 
 if (!fs.existsSync(path.join(webRoot, '.vercel', 'project.json'))) {
-  console.log('\nLinking project (first time)...');
-  run('npx', ['vercel', 'link', '--yes']);
+  console.log('Linking project...');
+  if (runVercel(['link', '--yes']) !== 0) process.exit(1);
 }
 
-const skipEnv = process.argv.includes('--deploy-only');
-if (skipEnv) {
-  console.log('\nSkipping env upload (--deploy-only).');
-} else {
-  console.log('\nUploading environment variables to production only...');
-  console.log('(On Windows this is slow — prefer the Vercel dashboard; see docs/DEBUG_VERCEL.md)\n');
+if (envOnly || withEnv) {
+  const envPath = path.join(webRoot, '.env.local');
+  const env = parseEnv(envPath);
+  console.log('\nUploading env to production (slow on Windows — dashboard is faster)...\n');
   for (const key of ENV_KEYS) {
     const val = env[key];
     if (val === undefined || val === '') continue;
-    console.log(`  ${key} → production`);
-    const r = vercel(['env', 'add', key, 'production', '--yes', '--force', '--value', val]);
-    if (r.status !== 0) {
-      console.warn(`  warn: ${key} may already exist or failed`);
-    }
+    console.log(`  ${key}`);
+    const status = runVercel(
+      ['env', 'add', key, 'production', '--yes', '--force', '--value', val],
+      { inherit: false },
+    );
+    if (status !== 0) console.warn(`  warn: ${key}`);
+  }
+  if (envOnly) {
+    console.log('\nEnv done. Deploy: npm run saas:deploy:only');
+    process.exit(0);
   }
 }
 
-console.log('\nDeploying to production...');
-const deploy = spawnSync('npx', ['vercel', 'deploy', '--prod', '--yes'], {
-  cwd: webRoot,
-  shell: true,
-  encoding: 'utf8',
-});
-if (deploy.status !== 0) process.exit(1);
-
-const out = `${deploy.stdout || ''}${deploy.stderr || ''}`;
-const urlMatch = out.match(/https:\/\/[^\s]+\.vercel\.app/gi);
-const deployUrl = urlMatch ? urlMatch[urlMatch.length - 1] : null;
-
-if (deployUrl) {
-  console.log('\nDeployed:', deployUrl);
-  console.log('\nNext steps:');
-  console.log(`  1. Vercel → Settings → Environment Variables → set NEXT_PUBLIC_APP_URL=${deployUrl}`);
-  console.log(`  2. Redeploy once (npm run saas:deploy)`);
-  console.log(`  3. Supabase → Auth → Redirect URLs → add ${deployUrl}/auth/callback`);
-  console.log(`  4. Smoke test: ${deployUrl}/demo`);
+console.log('\nDeploying to production (~1–2 min on Vercel)...\n');
+const status = runVercel(['deploy', '--prod', '--yes']);
+if (status !== 0) {
+  console.error('\nDeploy failed. Check output above or: cd web && npx vercel deploy --prod --yes');
+  process.exit(1);
 }
+
+console.log('\nProduction URL: https://rapidai-velomails-projects.vercel.app');
+console.log('Smoke test: /sign-up');
+console.log('See docs/MVP_COMPLETE.md for auth + DB steps.');

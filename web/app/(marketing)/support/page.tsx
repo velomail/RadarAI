@@ -15,7 +15,7 @@ const FAQ_ITEMS = [
   {
     question: 'Is my resume data safe?',
     answer:
-      'Yes. Your resume is encrypted and stored securely. Demo data is deleted automatically and account data can be removed on request.',
+      'Yes. Your resume is stored in private cloud storage. You can delete your account and data from Settings.',
   },
   {
     question: "What's the difference between free and Pro?",

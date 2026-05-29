@@ -23,7 +23,7 @@ async function getUser() {
   return data.user;
 }
 
-export async function updateProfile(profileId: string, formData: FormData) {
+export async function createSearchProfile(formData: FormData) {
   const user = await getUser();
   const searchFocus = parseSearchFocus(formData);
   const queries = parseQueriesFromForm(formData, searchFocus);
@@ -38,42 +38,36 @@ export async function updateProfile(profileId: string, formData: FormData) {
   });
 
   const sb = supabaseServiceRole();
-  const { data: existing } = await sb
-    .from('search_profiles')
-    .select('user_id, schedule_cron')
-    .eq('id', profileId)
-    .maybeSingle();
-  if (!existing || existing.user_id !== user.id) throw new Error('Profile not found.');
 
-  const { error } = await sb
-    .from('search_profiles')
-    .update({
-      name: parsed.name,
-      queries,
-      search_focus: searchFocus,
-      location: parsed.location,
-      remote_only: !!parsed.remote_only,
-      min_score: parsed.min_score,
-      schedule_cron: parsed.schedule_cron || MANUAL_SCHEDULE_CRON,
-      notify_email: parsed.notify_email || null,
-    })
-    .eq('id', profileId);
+  const { data: existingResume } = await sb
+    .from('resumes')
+    .select('id')
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (!existingResume) {
+    redirect('/onboarding');
+  }
+
+  const { error } = await sb.from('search_profiles').insert({
+    user_id: user.id,
+    name: parsed.name,
+    resume_id: existingResume.id,
+    queries,
+    search_focus: searchFocus,
+    location: parsed.location,
+    remote_only: !!parsed.remote_only,
+    min_score: parsed.min_score,
+    schedule_cron: parsed.schedule_cron || MANUAL_SCHEDULE_CRON,
+    notify_email: parsed.notify_email || null,
+    notify_telegram_chat_id: null,
+    active: true,
+  });
   if (error) throw new Error(error.message);
 
   revalidatePath('/dashboard');
-  redirect('/dashboard');
-}
-
-export async function deleteProfile(profileId: string) {
-  const user = await getUser();
-  const sb = supabaseServiceRole();
-  const { data: existing } = await sb
-    .from('search_profiles')
-    .select('user_id')
-    .eq('id', profileId)
-    .maybeSingle();
-  if (!existing || existing.user_id !== user.id) throw new Error('Profile not found.');
-  await sb.from('search_profiles').delete().eq('id', profileId);
-  revalidatePath('/dashboard');
-  redirect('/dashboard');
+  revalidatePath('/dashboard/searches');
+  redirect('/dashboard/searches');
 }
