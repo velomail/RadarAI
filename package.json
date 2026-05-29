@@ -8,6 +8,8 @@
   },
   "type": "module",
   "scripts": {
+    "build": "npm run build --prefix web",
+    "vercel-build": "npm run build --prefix web",
     "saas:dev": "npm run dev --prefix web",
     "saas:dev:clean": "npm run dev:clean --prefix web",
     "saas:clean": "node web/scripts/clean-next-cache.mjs",
