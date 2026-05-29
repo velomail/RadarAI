@@ -3,6 +3,7 @@ import type { UserPlan } from '@/lib/plan';
 import {
   filterDisplayFlags,
   formatSourceLabel,
+  resolveJobApplyUrl,
 } from '@/lib/format-display';
 import { ProLockedSection } from '@/components/jobs/ProLockedSection';
 import { Badge } from '@/components/ui/badge';
@@ -44,7 +45,12 @@ export function JobCard({
   const roleSummary = job.ai_scores?.role_summary;
   const experienceMatch = job.ai_scores?.experience_match;
   const displayFlags = filterDisplayFlags(job.quality_flags);
-  const applyHref = job.apply_url || job.canonical_url || job.linkedin_url || '';
+  const applyHref = resolveJobApplyUrl(
+    job.apply_url,
+    job.canonical_url,
+    job.linkedin_url,
+    job.source,
+  );
   const hasApplyHref = Boolean(applyHref);
   const hasCompanyMeta =
     job.company_industry ||

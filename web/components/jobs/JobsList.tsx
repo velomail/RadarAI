@@ -21,9 +21,11 @@ export function RunSummary({ run }: { run: Run }) {
     <div className="glass overflow-hidden rounded-2xl">
       {sampleData ? (
         <div className="border-b border-amber-500/30 bg-amber-500/10 px-5 py-3 text-sm text-amber-950 md:px-6">
-          <strong>Sample listings</strong> — this run used demo/fixture data, not live Adzuna jobs.
-          Remove <code className="rounded bg-black/10 px-1">ENGINE_MODE=mock</code> on Vercel and run again
-          for real results.
+          <strong>Sample or legacy listings</strong> — this run did not use live Adzuna jobs. Run a{' '}
+          <strong>new search</strong> after confirming Vercel has{' '}
+          <code className="rounded bg-black/10 px-1">ADZUNA_APP_ID</code> /{' '}
+          <code className="rounded bg-black/10 px-1">ADZUNA_APP_KEY</code> set and{' '}
+          <code className="rounded bg-black/10 px-1">ENGINE_MODE</code> removed.
         </div>
       ) : null}
       <div className="border-b border-border/40 bg-white/40 px-5 py-4 md:px-6">

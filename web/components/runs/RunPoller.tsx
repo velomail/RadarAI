@@ -12,8 +12,8 @@ interface Status {
 }
 
 const PIPELINE_STEPS = [
-  'Fetching listings from job boards',
-  'Deduplicating and normalizing',
+  'Fetching listings from Adzuna',
+  'Filtering new and relevant jobs',
   'Scoring against your resume',
   'Ranking top matches',
 ] as const;

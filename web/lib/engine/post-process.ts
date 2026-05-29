@@ -1,3 +1,4 @@
+import { isDemoApplyUrl, isHttpApplyUrl } from '@/lib/format-display';
 import { canonicalApplyUrl } from './clean-jobs';
 import type { CleanJob, FetchResult, RunSummary, ScoredJobRaw } from './types';
 
@@ -9,6 +10,20 @@ const MAX_REPORT_JOBS = 12;
 const FRESH_HOURS = 6;
 const WARM_HOURS = 24;
 const RECENT_HOURS = 72;
+
+function pickApplyUrl(enrichment: CleanJob, scoredApplyUrl?: string): string {
+  const candidates = [
+    enrichment.apply_url,
+    enrichment.external_apply_url,
+    scoredApplyUrl,
+    enrichment.linkedin_url,
+  ].filter(Boolean) as string[];
+
+  for (const url of candidates) {
+    if (isHttpApplyUrl(url) && !isDemoApplyUrl(url)) return url;
+  }
+  return '';
+}
 
 function toNumber(value: unknown, fallback = 0): number {
   const n = Number(value);
@@ -110,8 +125,7 @@ function normalizeJob(scored: ScoredJobRaw, enrichment: CleanJob, minScore: numb
     freshBonus +
     (enrichment.direct_ats ? 2 : 0);
 
-  const preferredApplyUrl =
-    enrichment.external_apply_url || scored.apply_url || enrichment.linkedin_url || '';
+  const preferredApplyUrl = pickApplyUrl(enrichment, scored.apply_url);
 
   return {
     ai: scored,

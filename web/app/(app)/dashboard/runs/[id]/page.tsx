@@ -24,7 +24,7 @@ export default async function DashboardRunPage({ params }: PageProps) {
   const tier = await getUserPlan(user.id);
 
   return (
-    <section className="flex flex-col gap-6">
+    <section className="mx-auto flex w-full max-w-3xl flex-col gap-6">
       <Link href="/dashboard" className="text-sm text-muted-foreground hover:text-foreground">
         ← Home
       </Link>

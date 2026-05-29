@@ -54,7 +54,7 @@ export function SearchProfileCard({
           Edit search settings
         </Link>
         <span className="text-muted-foreground">·</span>
-        <Link href="/dashboard/searches" className="text-muted-foreground hover:text-foreground">
+        <Link href="/dashboard/searches#resume" className="text-muted-foreground hover:text-foreground">
           Change resume
         </Link>
       </div>

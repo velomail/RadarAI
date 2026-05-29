@@ -1,7 +1,6 @@
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 import { SearchProfileFields } from '@/components/profile/SearchProfileFields';
-import { ResumeUploadField } from '@/components/profile/ResumeUploadField';
 import { Button } from '@/components/ui/button';
 import { supabaseServer, supabaseServiceRole } from '@/lib/supabase/server';
 import type { Resume, SearchProfile } from '@/lib/types';
@@ -40,17 +39,23 @@ export default async function EditSearchPage({ params }: PageProps) {
   const remove = deleteProfile.bind(null, id);
 
   return (
-    <section className="mx-auto flex max-w-3xl flex-col gap-8">
+    <section className="mx-auto flex w-full max-w-3xl flex-col gap-8">
       <Link href="/dashboard/searches" className="text-sm text-muted-foreground hover:text-foreground">
         ← Searches
       </Link>
       <h1 className="text-3xl font-bold tracking-tight">Edit search</h1>
 
       <form action={update} className="glass flex flex-col gap-8 rounded-2xl p-8">
-        <ResumeUploadField
-          currentFilename={latestResume?.original_filename}
-          required={false}
-        />
+        <div className="rounded-xl border border-border/60 bg-muted/30 px-4 py-3 text-sm text-muted-foreground">
+          Resume:{' '}
+          <span className="font-medium text-foreground">
+            {latestResume?.original_filename || 'Not on file'}
+          </span>
+          {' · '}
+          <Link href="/dashboard/searches#resume" className="font-medium text-primary hover:underline">
+            Update resume
+          </Link>
+        </div>
         <SearchProfileFields
           userEmail={user.email ?? ''}
           defaults={{

@@ -3,8 +3,7 @@ import { redirect } from 'next/navigation';
 import { Plus, Search } from 'lucide-react';
 import { DailyUsageMeter } from '@/components/dashboard/DailyUsageMeter';
 import { SearchProfileCard } from '@/components/dashboard/SearchProfileCard';
-import { ResumeUploadField } from '@/components/profile/ResumeUploadField';
-import { Button } from '@/components/ui/button';
+import { AccountResumeForm } from '@/components/profile/AccountResumeForm';
 import { supabaseServer, supabaseServiceRole } from '@/lib/supabase/server';
 import { getDailyUsage } from '@/lib/usage/consume-daily-query';
 import type { Resume, SearchProfile } from '@/lib/types';
@@ -39,7 +38,7 @@ export default async function SearchesPage() {
 
   if (!allProfiles.length) {
     return (
-      <section className="flex max-w-3xl flex-col gap-8">
+      <div className="mx-auto flex w-full max-w-3xl flex-col gap-8">
         <h1 className="text-3xl font-bold tracking-tight">Your searches</h1>
         <div className="glass rounded-2xl p-10 text-center">
           <p className="text-muted-foreground">Upload your resume and define what roles you want.</p>
@@ -50,12 +49,12 @@ export default async function SearchesPage() {
             Set up first search
           </Link>
         </div>
-      </section>
+      </div>
     );
   }
 
   return (
-    <section className="flex max-w-3xl flex-col gap-10">
+    <div className="mx-auto flex w-full max-w-3xl flex-col gap-10">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <div className="mb-3 inline-flex items-center gap-2 rounded-full glass-subtle px-4 py-2">
@@ -76,18 +75,9 @@ export default async function SearchesPage() {
         </Link>
       </div>
 
-      <form action={updateAccountResume} className="glass flex flex-col gap-4 rounded-2xl p-6">
-        <div>
-          <h2 className="text-lg font-semibold">Your resume</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Searches use your latest resume. Upload a new PDF anytime — it applies to all saved searches.
-          </p>
-        </div>
-        <ResumeUploadField currentFilename={resume?.original_filename} required={false} />
-        <Button type="submit" variant="outline" className="self-start">
-          Update resume
-        </Button>
-      </form>
+      <div id="resume">
+        <AccountResumeForm currentFilename={resume?.original_filename} action={updateAccountResume} />
+      </div>
 
       <div className="glass rounded-2xl p-6">
         <DailyUsageMeter
@@ -102,6 +92,6 @@ export default async function SearchesPage() {
           <SearchProfileCard key={profile.id} profile={profile} resumeFilename={resume?.original_filename} />
         ))}
       </div>
-    </section>
+    </div>
   );
 }

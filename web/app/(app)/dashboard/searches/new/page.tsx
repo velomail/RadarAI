@@ -34,7 +34,7 @@ export default async function NewSearchPage() {
       <div>
         <h1 className="text-3xl font-bold tracking-tight">New search</h1>
         <p className="mt-2 text-base text-muted-foreground">
-          Add different keywords or location. Optionally upload a new resume for this search.
+          Add different keywords or location. Your account resume is used unless you replace it below.
         </p>
       </div>
 
@@ -42,7 +42,7 @@ export default async function NewSearchPage() {
         action={createSearchProfile}
         className="glass flex flex-col gap-8 rounded-2xl p-8"
       >
-        <ResumeUploadField currentFilename={resume.original_filename} required={false} />
+        <ResumeUploadField compact currentFilename={resume.original_filename} required={false} />
         <SearchProfileFields
           userEmail={user.email ?? ''}
           defaults={{
