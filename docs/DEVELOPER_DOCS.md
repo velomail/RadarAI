@@ -24,26 +24,31 @@ This file consolidates the project markdown docs into clear categories for devel
 - `docs/ENGINE_MODE.md` (mock/live mode behavior)
 - `docs/SECURITY_AUDIT.md` (current audit findings and hardening)
 
-## 4) Product and UX Specs
+## 4) Product
 
-- `docs/V0_UI_BRIEF.md` (UI and product requirements)
-- `docs/V0_PROMPT_STARTER.md` (v0 prompt starter)
 - `docs/MONETIZATION.md` (pricing and growth notes)
+- `docs/MVP_COMPLETE.md` (launch checklist)
+- `docs/PRODUCTHUNT_LAUNCH.md` (PH positioning)
 
-## 5) Auth and Notifications
+## 5) Auth
 
-- `docs/AUTH_EMAIL_SETUP.md` (Resend/email setup)
+- `docs/AUTH_OAUTH_SETUP.md` (Google + GitHub sign-in)
+- `docs/AUTH_AUDIT.md` (pre-launch security checklist)
 
 ## 6) Personal n8n Stack (Optional)
 
 - `personal/README.md` (canonical personal stack docs)
 - `docs/personal/README.md` (legacy milestones only)
 
+## Archive
+
+- `docs/archive/` — obsolete magic-link and v0 redesign docs
+
 ## Recommended Read Order
 
 1. `README.md`
 2. `PROJECT_STRUCTURE.md`
 3. `docs/CONNECT_SERVICES.md`
-4. `docs/PROVISIONING.md`
+4. `docs/AUTH_OAUTH_SETUP.md`
 5. `docs/LOCAL_DEV.md`
-6. `docs/RUNBOOK.md`
+6. `docs/MVP_COMPLETE.md`

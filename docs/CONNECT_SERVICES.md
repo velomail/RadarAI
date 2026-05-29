@@ -182,7 +182,7 @@ cd web
 node scripts/test-resend.mjs someone@example.com
 ```
 
-Full checklist: [AUTH_EMAIL_SETUP.md](AUTH_EMAIL_SETUP.md)
+Full checklist: [AUTH_OAUTH_SETUP.md](AUTH_OAUTH_SETUP.md)
 
 ---
 
@@ -275,5 +275,5 @@ This removes `ENGINE_MODE=mock` from Vercel. The app then calls Adzuna + OpenAI 
 | [PROVISIONING.md](PROVISIONING.md) | Detailed first-time provisioning |
 | [VERCEL_DEPLOY.md](VERCEL_DEPLOY.md) | Vercel import settings |
 | [ENGINE_MODE.md](ENGINE_MODE.md) | Mock vs live commands |
-| [AUTH_EMAIL_SETUP.md](AUTH_EMAIL_SETUP.md) | Magic link email for all users |
+| [AUTH_OAUTH_SETUP.md](AUTH_OAUTH_SETUP.md) | Google + GitHub sign-in |
 | [LOCAL_DEV.md](LOCAL_DEV.md) | Local development |

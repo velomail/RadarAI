@@ -20,3 +20,9 @@ web/dist
 # Personal n8n runtime (regenerated locally)
 personal/data/
 personal/workflows/job-funnel.generated.json
+
+# Design artifacts and deploy logs
+*.zip
+_redesign_zip/
+web/deploy-log.txt
+web/deploy-out.txt

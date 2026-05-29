@@ -5,7 +5,7 @@ import { ArrowRight } from 'lucide-react';
 import { JobSearchFields } from '@/components/profile/JobSearchFields';
 import { ResumeUploadField } from '@/components/profile/ResumeUploadField';
 import { Button } from '@/components/ui/button';
-import { createOnboardingProfile } from '@/app/(app)/onboarding/actions';
+import { createOnboardingProfile } from '@/app/(app)/dashboard/searches/onboarding-actions';
 
 function SetupSubmitButton() {
   const { pending } = useFormStatus();

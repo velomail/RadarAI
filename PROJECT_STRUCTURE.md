@@ -50,7 +50,7 @@ If you still have a root `.env`, run `npm run saas:sync-env` (copies to `web/.en
 | `dispatch-notifications.ts` | Dispatch Notifications |
 | `run-engine.ts` | Full `score-jobs` workflow |
 
-Triggered by: demo action, `/api/profiles/[id]/run`, `/api/cron/radar`.
+Triggered by: `/dashboard/searches` actions, `/api/profiles/[id]/run`, `/api/cron/radar`.
 
 ## Cleanup & disk use
 

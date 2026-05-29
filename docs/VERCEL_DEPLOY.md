@@ -24,7 +24,7 @@ In **Project → Settings → Environment Variables**, add every variable from `
 | `OPENAI_API_KEY` | your OpenAI key |
 | `CRON_SECRET` | same random hex as local |
 | `RESEND_API_KEY` | your Resend key |
-| `EMAIL_FROM` | verified domain after launch — see [AUTH_EMAIL_SETUP.md](AUTH_EMAIL_SETUP.md) |
+| `EMAIL_FROM` | optional — for notification emails, not auth |
 | `RESEND_DAILY_HARD_CAP` | `90` |
 
 Do **not** set `ENGINE_MODE` on Vercel (live by default). Use `ENGINE_MODE=mock` only in local `.env.local` for dev.

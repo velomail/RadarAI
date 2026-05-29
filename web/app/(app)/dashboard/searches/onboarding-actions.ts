@@ -18,6 +18,7 @@ const Schema = z.object({
   notify_email: z.string().optional(),
 });
 
+/** First-time profile setup from the Search page — saves criteria and starts the first run. */
 export async function createOnboardingProfile(formData: FormData) {
   const user = await getUser();
   const file = formData.get('resume');

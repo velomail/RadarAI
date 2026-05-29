@@ -63,7 +63,7 @@ All users share **your** API keys (RapidAPI, OpenAI, Resend). One heavy user can
 | Operator-funded API keys | Pass-through or require BYOK for enterprise |
 | No admin dashboard | Support/debug hard |
 | No analytics (PostHog/Plausible) | Can’t optimize funnel |
-| Auth email domain | Blocker for public launch (see `AUTH_EMAIL_SETUP.md`) |
+| Auth email domain | Optional for digests — OAuth handles sign-in ([AUTH_OAUTH_SETUP.md](AUTH_OAUTH_SETUP.md)) |
 
 ---
 
@@ -85,7 +85,7 @@ Annual discount (~2 months free) improves cash flow.
 
 ## Implementation order (if you pursue revenue)
 
-1. **Domain + auth for any email** — `AUTH_EMAIL_SETUP.md` (launch blocker)  
+1. **OAuth sign-in** — [AUTH_OAUTH_SETUP.md](AUTH_OAUTH_SETUP.md)  
 2. **Pricing page** + waitlist or Stripe Checkout link  
 3. **DB migration** — `subscriptions(user_id, stripe_customer_id, plan, status, current_period_end)`  
 4. **Stripe webhooks** — `checkout.session.completed`, `customer.subscription.updated`  
