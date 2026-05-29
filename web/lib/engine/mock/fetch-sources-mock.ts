@@ -1,0 +1,112 @@
+import type { EnginePayload, FetchResult, RawJob } from '../types';
+
+const COMPANIES = [
+  'Northwind Labs',
+  'Summit Analytics',
+  'Harbor Health',
+  'BluePeak Software',
+  'Maple Retail Group',
+  'Vertex Consulting',
+  'ClearPath Logistics',
+  'Brightline Media',
+];
+
+const DESCRIPTION_TEMPLATES = [
+  'Join {company} as a {title}. You will collaborate cross-functionally, own deliverables, and grow with a supportive team. Requirements include relevant experience, strong communication, and comfort with modern tools.',
+  '{company} is hiring a {title} in {location}. Day-to-day: execute core responsibilities, document progress, partner with stakeholders, and contribute to team goals. Hybrid and remote-friendly options may be available.',
+  'We are looking for a {title} to help {company} scale. Ideal candidates bring hands-on experience, attention to detail, and a track record of learning quickly. Competitive compensation and training provided.',
+];
+
+function hash(s: string): number {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0;
+  return Math.abs(h);
+}
+
+function pick<T>(arr: T[], seed: string): T {
+  return arr[hash(seed) % arr.length];
+}
+
+function hoursAgo(n: number): string {
+  return new Date(Date.now() - n * 3600000).toISOString();
+}
+
+function titleVariants(query: string, i: number): string {
+  const q = query.replace(/\b\w/g, (c) => c.toUpperCase());
+  const variants = [q, `Senior ${q}`, `${q} (Contract)`, `Junior ${q}`, `Lead ${q}`];
+  return variants[i % variants.length];
+}
+
+function companySlug(name: string): string {
+  return name.toLowerCase().replace(/[^a-z0-9]+/g, '');
+}
+
+function makeJob(
+  query: string,
+  location: string,
+  source: 'jsearch' | 'linkedin',
+  index: number,
+): RawJob {
+  const company = pick(COMPANIES, `${query}:${index}:${source}`);
+  const title = titleVariants(query, index);
+  const template = pick(DESCRIPTION_TEMPLATES, `${company}:${title}`);
+  const description = template
+    .replace('{company}', company)
+    .replace('{title}', title)
+    .replace('{location}', location);
+  const remote = index % 3 === 0;
+  const id = `mock-${source}-${hash(`${query}-${index}`)}`;
+  const applyUrl = `https://careers.${companySlug(company)}.com/jobs/${id}`;
+
+  return {
+    job_id: id,
+    job_title: title,
+    employer_name: company,
+    job_apply_link: applyUrl,
+    job_description: description,
+    job_publisher: source === 'linkedin' ? 'LinkedIn' : 'Indeed',
+    job_location: remote ? `Remote · ${location}` : location,
+    job_city: location.split(',')[0] || location,
+    job_country: 'CA',
+    job_is_remote: remote,
+    job_posted_at_datetime_utc: hoursAgo(2 + (index % 48)),
+    job_employment_type: index % 4 === 0 ? 'PARTTIME' : 'FULLTIME',
+    direct_ats: index % 5 === 0,
+    external_apply_url: index % 5 === 0 ? applyUrl : '',
+    linkedin_url: source === 'linkedin' ? applyUrl : '',
+    source,
+    _matched_query: query,
+  };
+}
+
+export function fetchSourcesMock(payload: EnginePayload): FetchResult {
+  const location = payload.location || 'Canada';
+  const queries = payload.queries.slice(0, 3);
+  const jobs: RawJob[] = [];
+  const raw_counts: FetchResult['raw_counts'] = [];
+
+  for (const q of queries) {
+    const jsearchJobs = Array.from({ length: 4 }, (_, i) => makeJob(q, location, 'jsearch', i));
+    const linkedinJobs = Array.from({ length: 3 }, (_, i) => makeJob(q, location, 'linkedin', i + 10));
+    jobs.push(...jsearchJobs, ...linkedinJobs);
+    raw_counts.push(
+      { source: 'jsearch', query: q, ok: true, skipped: false, count: jsearchJobs.length, message: 'mock' },
+      { source: 'linkedin', query: q, ok: true, skipped: false, count: linkedinJobs.length, message: 'mock' },
+    );
+  }
+
+  const sources_breakdown = jobs.reduce<Record<string, number>>((acc, j) => {
+    const k = j.source || 'mock';
+    acc[k] = (acc[k] || 0) + 1;
+    return acc;
+  }, {});
+
+  console.info('[mock engine] Generated', jobs.length, 'fixture jobs for queries:', queries.join(', '));
+
+  return {
+    data: jobs,
+    sources_breakdown,
+    raw_counts,
+    widened: false,
+  };
+}

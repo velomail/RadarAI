@@ -1,0 +1,22 @@
+# Cursor / IDE
+.cursor/
+
+# Secrets and local env (never commit)
+.env
+.env.local
+.env.old
+.env.*.local
+web/.env.local
+personal/.env
+
+# Build artifacts
+web/.next
+web/node_modules
+web/.vercel
+web/out
+web/dist
+*.tsbuildinfo
+
+# Personal n8n runtime (regenerated locally)
+personal/data/
+personal/workflows/job-funnel.generated.json

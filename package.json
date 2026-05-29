@@ -1,0 +1,23 @@
+{
+  "name": "n8n-job-funnel",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "saas:dev": "npm run dev --prefix web",
+    "saas:dev:clean": "npm run dev:clean --prefix web",
+    "saas:clean": "node web/scripts/clean-next-cache.mjs",
+    "saas:build": "npm run build --prefix web",
+    "saas:typecheck": "npm run typecheck --prefix web",
+    "saas:sync-env": "node scripts/sync-saas-env.mjs",
+    "saas:test-resend": "node web/scripts/test-resend.mjs",
+    "saas:preview-email": "node web/scripts/preview-email.mjs",
+    "saas:logs": "npx vercel logs rapidai-velomails-projects.vercel.app",
+    "saas:deploy": "node web/scripts/deploy-vercel.mjs",
+    "saas:deploy:only": "node web/scripts/deploy-vercel.mjs --deploy-only",
+    "saas:engine:mock": "node web/scripts/set-engine-mode.mjs mock",
+    "saas:engine:live": "node web/scripts/set-engine-mode.mjs live",
+    "personal:up": "docker compose -f personal/docker-compose.yml --env-file personal/.env up -d",
+    "personal:down": "docker compose -f personal/docker-compose.yml down",
+    "personal:deploy": "node personal/scripts/deploy-workflow.mjs"
+  }
+}
