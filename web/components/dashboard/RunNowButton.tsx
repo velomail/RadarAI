@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 export function RunNowButton({
   profileId,
   fullWidth = false,
-  label = 'Run search',
+  label = 'Search now',
 }: {
   profileId: string;
   fullWidth?: boolean;
@@ -22,38 +22,38 @@ export function RunNowButton({
 
   return (
     <div className={`flex flex-col gap-3 ${fullWidth ? 'w-full' : ''}`}>
-      <div className={`flex items-center gap-3 ${fullWidth ? 'w-full' : ''}`}>
-        <Button
-          size="sm"
-          className={`h-10 rounded-xl px-4 ${fullWidth ? 'w-full justify-center text-base' : ''}`}
-          disabled={pending || limitHit}
-          onClick={() =>
-            startTransition(async () => {
-              setError(null);
-              setLimitHit(false);
-              const res = await fetch(`/api/profiles/${profileId}/run`, { method: 'POST' });
-              if (res.status === 429) {
-                setLimitHit(true);
-                setError('Daily search limit reached (3 per day on the free plan).');
-                return;
-              }
-              if (res.status !== 202 && !res.ok) {
-                const body = await res.json().catch(() => ({}));
-                setError(body.error || `HTTP ${res.status}`);
-                return;
-              }
-              const { run_id } = await res.json();
-              router.push(`/dashboard/runs/${run_id}`);
-            })
-          }
-        >
-          {pending ? 'Searching…' : label}
-          <ArrowRight className="ml-2 h-4 w-4" />
-        </Button>
-        {error && !limitHit ? (
-          <p className="text-sm text-[hsl(var(--danger))]">{error}</p>
-        ) : null}
-      </div>
+      <Button
+        size="lg"
+        className={`h-11 rounded-xl px-6 ${fullWidth ? 'w-full justify-center text-base' : ''}`}
+        disabled={pending || limitHit}
+        onClick={() =>
+          startTransition(async () => {
+            setError(null);
+            setLimitHit(false);
+            const res = await fetch(`/api/profiles/${profileId}/run`, { method: 'POST' });
+            if (res.status === 429) {
+              setLimitHit(true);
+              setError('Daily search limit reached (3 per day on the free plan).');
+              return;
+            }
+            if (res.status !== 202 && !res.ok) {
+              const body = await res.json().catch(() => ({}));
+              setError(body.error || `HTTP ${res.status}`);
+              return;
+            }
+            const { run_id } = await res.json();
+            router.replace(`/dashboard/searches/${profileId}?run=${run_id}`);
+          })
+        }
+      >
+        {pending ? 'Starting search…' : label}
+        <ArrowRight className="ml-2 h-4 w-4" />
+      </Button>
+
+      {error && !limitHit ? (
+        <p className="text-sm text-[hsl(var(--danger))]">{error}</p>
+      ) : null}
+
       {limitHit ? (
         <div className="rounded-xl border border-primary/25 bg-primary/5 px-4 py-3 text-sm">
           <p className="font-medium text-foreground">You&apos;ve used all 3 free searches today</p>

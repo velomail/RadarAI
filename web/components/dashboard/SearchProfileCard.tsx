@@ -1,62 +1,32 @@
 import Link from 'next/link';
-import { FileText, MapPin } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
+import { ChevronRight, MapPin } from 'lucide-react';
 import { RunNowButton } from '@/components/dashboard/RunNowButton';
 import type { SearchProfile } from '@/lib/types';
 
-export function SearchProfileCard({
-  profile,
-  resumeFilename,
-}: {
-  profile: SearchProfile;
-  resumeFilename?: string | null;
-}) {
+export function SearchProfileCard({ profile }: { profile: SearchProfile }) {
+  const keywords = profile.queries.length
+    ? profile.queries.slice(0, 3).join(', ')
+    : 'Auto from resume';
+
   return (
-    <div className="glass rounded-2xl p-6 md:p-7">
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <h3 className="text-xl font-semibold tracking-tight">{profile.name}</h3>
-        <Badge variant="muted" className="rounded-full px-3 py-1 text-xs font-medium">
-          On-demand
-        </Badge>
-      </div>
-
-      {resumeFilename ? (
-        <div className="mb-5 flex items-center gap-2 text-sm text-muted-foreground">
-          <FileText className="h-4 w-4 shrink-0 text-primary" />
-          <span>
-            Resume: <span className="font-medium text-foreground">{resumeFilename}</span>
-          </span>
-        </div>
-      ) : null}
-
-      <div className="space-y-5">
-        <div className="space-y-2">
-          <p className="text-sm font-medium">Job title or keywords</p>
-          <div className="min-h-12 rounded-xl border border-white/40 bg-white/80 px-4 py-3 text-sm text-foreground backdrop-blur-sm">
-            {profile.queries.length ? profile.queries.slice(0, 4).join(', ') : 'Auto from resume'}
-          </div>
-        </div>
-
-        <div className="space-y-2">
-          <p className="text-sm font-medium">Location</p>
-          <div className="flex min-h-12 items-center gap-2 rounded-xl border border-white/40 bg-white/80 px-4 py-3 text-sm text-foreground backdrop-blur-sm">
-            <MapPin className="h-4 w-4 shrink-0 text-primary" />
+    <div className="glass overflow-hidden rounded-2xl">
+      <Link
+        href={`/dashboard/searches/${profile.id}`}
+        className="flex items-center justify-between gap-4 border-b border-border/40 px-5 py-4 transition-colors hover:bg-muted/30"
+      >
+        <div className="min-w-0">
+          <p className="font-semibold text-foreground">{profile.name}</p>
+          <p className="mt-1 truncate text-sm text-muted-foreground">{keywords}</p>
+          <p className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
+            <MapPin className="h-3.5 w-3.5 shrink-0" />
             {profile.location}
-          </div>
+            {profile.remote_only ? ' · Remote' : ''}
+          </p>
         </div>
-      </div>
-
-      <div className="mt-6">
-        <RunNowButton profileId={profile.id} fullWidth label="Search jobs" />
-      </div>
-      <div className="mt-4 flex flex-wrap items-center justify-center gap-4 text-sm">
-        <Link href={`/dashboard/searches/${profile.id}`} className="font-medium text-primary hover:underline">
-          Edit search settings
-        </Link>
-        <span className="text-muted-foreground">·</span>
-        <Link href="/dashboard/searches#resume" className="text-muted-foreground hover:text-foreground">
-          Change resume
-        </Link>
+        <ChevronRight className="h-5 w-5 shrink-0 text-muted-foreground" />
+      </Link>
+      <div className="px-5 py-4">
+        <RunNowButton profileId={profile.id} fullWidth label="Search now" />
       </div>
     </div>
   );

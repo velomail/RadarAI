@@ -66,7 +66,8 @@ export async function updateProfile(profileId: string, formData: FormData) {
 
   revalidatePath('/dashboard');
   revalidatePath('/dashboard/searches');
-  redirect('/dashboard/searches');
+  revalidatePath(`/dashboard/searches/${profileId}`);
+  redirect(`/dashboard/searches/${profileId}`);
 }
 
 export async function deleteProfile(profileId: string) {

@@ -1,17 +1,22 @@
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
-import { SearchProfileFields } from '@/components/profile/SearchProfileFields';
-import { Button } from '@/components/ui/button';
+import { Settings2 } from 'lucide-react';
+import { DashboardPage } from '@/components/layout/DashboardPage';
+import { SearchCriteriaSummary } from '@/components/searches/SearchCriteriaSummary';
+import { SearchRunPanel } from '@/components/searches/SearchRunPanel';
+import { getUserPlan } from '@/lib/plan';
 import { supabaseServer, supabaseServiceRole } from '@/lib/supabase/server';
-import type { Resume, SearchProfile } from '@/lib/types';
-import { deleteProfile, updateProfile } from './actions';
+import type { SearchProfile } from '@/lib/types';
 
 interface PageProps {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ run?: string }>;
 }
 
-export default async function EditSearchPage({ params }: PageProps) {
+export default async function SearchWorkspacePage({ params, searchParams }: PageProps) {
   const { id } = await params;
+  const { run: runId } = await searchParams;
+
   const supabase = await supabaseServer();
   const {
     data: { user },
@@ -19,72 +24,36 @@ export default async function EditSearchPage({ params }: PageProps) {
   if (!user) redirect('/sign-in');
 
   const sb = supabaseServiceRole();
-  const [{ data: profile }, { data: resume }] = await Promise.all([
-    sb.from('search_profiles').select('*').eq('id', id).maybeSingle(),
-    sb
-      .from('resumes')
-      .select('*')
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .maybeSingle(),
-  ]);
-
+  const { data: profile } = await sb.from('search_profiles').select('*').eq('id', id).maybeSingle();
   if (!profile) notFound();
   if (profile.user_id !== user.id) notFound();
-  const p = profile as SearchProfile;
-  const latestResume = resume as Resume | null;
 
-  const update = updateProfile.bind(null, id);
-  const remove = deleteProfile.bind(null, id);
+  if (runId) {
+    const { data: run } = await sb.from('runs').select('user_id, search_profile_id').eq('id', runId).maybeSingle();
+    if (!run || run.user_id !== user.id || run.search_profile_id !== id) notFound();
+  }
+
+  const p = profile as SearchProfile;
+  const tier = await getUserPlan(user.id);
 
   return (
-    <section className="mx-auto flex w-full max-w-3xl flex-col gap-8">
-      <Link href="/dashboard/searches" className="text-sm text-muted-foreground hover:text-foreground">
-        ← Searches
-      </Link>
-      <h1 className="text-3xl font-bold tracking-tight">Edit search</h1>
-
-      <form action={update} className="glass flex flex-col gap-8 rounded-2xl p-8">
-        <div className="rounded-xl border border-border/60 bg-muted/30 px-4 py-3 text-sm text-muted-foreground">
-          Resume:{' '}
-          <span className="font-medium text-foreground">
-            {latestResume?.original_filename || 'Not on file'}
-          </span>
-          {' · '}
-          <Link href="/dashboard/searches#resume" className="font-medium text-primary hover:underline">
-            Update resume
-          </Link>
-        </div>
-        <SearchProfileFields
-          userEmail={user.email ?? ''}
-          defaults={{
-            name: p.name,
-            search_focus: p.search_focus || 'auto',
-            queries: p.queries.join(', '),
-            location: p.location,
-            remote_only: p.remote_only,
-            min_score: p.min_score,
-            notify_email: p.notify_email ?? '',
-            email_on_complete: !!p.notify_email,
-          }}
-        />
-        <Button type="submit" size="lg" className="self-start">
-          Save changes
-        </Button>
-      </form>
-
-      <div className="rounded-2xl border border-[hsl(var(--danger))]/30 bg-[hsl(var(--danger))]/5 p-6">
-        <h2 className="font-semibold text-[hsl(var(--danger))]">Delete this search</h2>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Removes the saved criteria. Past run history is kept.
-        </p>
-        <form action={remove} className="mt-4">
-          <Button type="submit" variant="danger" size="sm">
-            Delete search
-          </Button>
-        </form>
-      </div>
-    </section>
+    <DashboardPage
+      backHref="/dashboard/searches"
+      backLabel="Searches"
+      title={p.name}
+      description="Run a fresh scan — results load on this page."
+      action={
+        <Link
+          href={`/dashboard/searches/${id}/edit`}
+          className="inline-flex h-10 items-center gap-2 rounded-full border border-border bg-background px-4 text-sm font-medium hover:bg-muted/50"
+        >
+          <Settings2 className="h-4 w-4" />
+          Edit
+        </Link>
+      }
+    >
+      <SearchCriteriaSummary profile={p} />
+      <SearchRunPanel profileId={id} runId={runId} tier={tier} />
+    </DashboardPage>
   );
 }

@@ -143,9 +143,13 @@ function statusBadgeVariant(status: Run['status']) {
 
 function RunRow({ run }: { run: Run }) {
   const date = new Date(run.started_at);
+  const href = run.search_profile_id
+    ? `/dashboard/searches/${run.search_profile_id}?run=${run.id}`
+    : `/dashboard/runs/${run.id}`;
+
   return (
     <Link
-      href={`/dashboard/runs/${run.id}`}
+      href={href}
       className="flex items-center justify-between gap-4 border-b border-border/50 px-5 py-4 transition-colors hover:bg-muted/35 last:border-b-0"
     >
       <div className="flex min-w-0 items-center gap-4">

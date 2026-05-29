@@ -9,7 +9,7 @@ const links = [
   {
     href: '/dashboard/searches',
     label: 'Searches',
-    match: (p: string) => p.startsWith('/dashboard/searches'),
+    match: (p: string) => p.startsWith('/dashboard/searches') || p.startsWith('/dashboard/runs'),
   },
   { href: '/dashboard/settings', label: 'Settings', match: (p: string) => p === '/dashboard/settings' },
 ] as const;

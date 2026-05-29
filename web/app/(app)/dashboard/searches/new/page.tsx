@@ -1,5 +1,5 @@
-import Link from 'next/link';
 import { redirect } from 'next/navigation';
+import { DashboardPage } from '@/components/layout/DashboardPage';
 import { SearchProfileFields } from '@/components/profile/SearchProfileFields';
 import { ResumeUploadField } from '@/components/profile/ResumeUploadField';
 import { Button } from '@/components/ui/button';
@@ -27,21 +27,13 @@ export default async function NewSearchPage() {
   if (!resume) redirect('/onboarding');
 
   return (
-    <section className="mx-auto flex max-w-3xl flex-col gap-8">
-      <Link href="/dashboard/searches" className="text-sm text-muted-foreground hover:text-foreground">
-        ← Searches
-      </Link>
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">New search</h1>
-        <p className="mt-2 text-base text-muted-foreground">
-          Add different keywords or location. Your account resume is used unless you replace it below.
-        </p>
-      </div>
-
-      <form
-        action={createSearchProfile}
-        className="glass flex flex-col gap-8 rounded-2xl p-8"
-      >
+    <DashboardPage
+      backHref="/dashboard/searches"
+      backLabel="Searches"
+      title="New search"
+      description="Save criteria — you'll run scans from the search screen."
+    >
+      <form action={createSearchProfile} className="glass flex flex-col gap-8 rounded-2xl p-8">
         <ResumeUploadField compact currentFilename={resume.original_filename} required={false} />
         <SearchProfileFields
           userEmail={user.email ?? ''}
@@ -55,6 +47,6 @@ export default async function NewSearchPage() {
           Save search
         </Button>
       </form>
-    </section>
+    </DashboardPage>
   );
 }

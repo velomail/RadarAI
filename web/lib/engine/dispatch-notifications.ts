@@ -200,7 +200,9 @@ export async function dispatchNotifications(
     .limit(5);
 
   const jobsList: Job[] = Array.isArray(jobs) ? (jobs as Job[]) : [];
-  const runUrl = `${APP_URL}/dashboard/runs/${runId}`;
+  const runUrl = run.search_profile_id
+    ? `${APP_URL}/dashboard/searches/${run.search_profile_id}?run=${runId}`
+    : `${APP_URL}/dashboard/runs/${runId}`;
 
   let emailBudgetUsed = await readEmailBudgetUsed(sb);
 

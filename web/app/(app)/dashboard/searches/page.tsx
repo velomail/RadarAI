@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { Plus, Search } from 'lucide-react';
 import { DailyUsageMeter } from '@/components/dashboard/DailyUsageMeter';
 import { SearchProfileCard } from '@/components/dashboard/SearchProfileCard';
+import { DashboardPage } from '@/components/layout/DashboardPage';
 import { AccountResumeForm } from '@/components/profile/AccountResumeForm';
 import { supabaseServer, supabaseServiceRole } from '@/lib/supabase/server';
 import { getDailyUsage } from '@/lib/usage/consume-daily-query';
@@ -38,8 +39,7 @@ export default async function SearchesPage() {
 
   if (!allProfiles.length) {
     return (
-      <div className="mx-auto flex w-full max-w-3xl flex-col gap-8">
-        <h1 className="text-3xl font-bold tracking-tight">Your searches</h1>
+      <DashboardPage title="Your searches" description="Save criteria and run resume-aware scans.">
         <div className="glass rounded-2xl p-10 text-center">
           <p className="text-muted-foreground">Upload your resume and define what roles you want.</p>
           <Link
@@ -49,37 +49,25 @@ export default async function SearchesPage() {
             Set up first search
           </Link>
         </div>
-      </div>
+      </DashboardPage>
     );
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-3xl flex-col gap-10">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <div className="mb-3 inline-flex items-center gap-2 rounded-full glass-subtle px-4 py-2">
-            <Search className="h-4 w-4 text-primary" />
-            <span className="text-xs font-medium tracking-wide text-muted-foreground">Saved criteria</span>
-          </div>
-          <h1 className="text-3xl font-bold tracking-tight">Your searches</h1>
-          <p className="mt-2 text-base text-muted-foreground">
-            Run a scan against your resume. Free plan: 3 searches per day.
-          </p>
-        </div>
+    <DashboardPage
+      title="Your searches"
+      description="Pick a saved search, then click Search now — results load on the same screen."
+      action={
         <Link
           href="/dashboard/searches/new"
-          className="inline-flex h-11 items-center gap-2 rounded-full bg-primary px-6 text-sm font-medium text-primary-foreground hover:opacity-90"
+          className="inline-flex h-10 items-center gap-2 rounded-full bg-primary px-5 text-sm font-medium text-primary-foreground hover:opacity-90"
         >
           <Plus className="h-4 w-4" />
-          New search
+          New
         </Link>
-      </div>
-
-      <div id="resume">
-        <AccountResumeForm currentFilename={resume?.original_filename} action={updateAccountResume} />
-      </div>
-
-      <div className="glass rounded-2xl p-6">
+      }
+    >
+      <div className="glass rounded-2xl p-5">
         <DailyUsageMeter
           queriesToday={dailyUsage.queries_today}
           limit={dailyUsage.limit}
@@ -87,11 +75,19 @@ export default async function SearchesPage() {
         />
       </div>
 
-      <div className="flex flex-col gap-5">
+      <div className="flex flex-col gap-4">
+        <div className="inline-flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+          <Search className="h-3.5 w-3.5" />
+          Saved searches
+        </div>
         {allProfiles.map((profile) => (
-          <SearchProfileCard key={profile.id} profile={profile} resumeFilename={resume?.original_filename} />
+          <SearchProfileCard key={profile.id} profile={profile} />
         ))}
       </div>
-    </div>
+
+      <div id="resume">
+        <AccountResumeForm currentFilename={resume?.original_filename} action={updateAccountResume} />
+      </div>
+    </DashboardPage>
   );
 }

@@ -1,14 +1,12 @@
-import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
-import { RunPoller } from '@/components/runs/RunPoller';
-import { getUserPlan } from '@/lib/plan';
 import { supabaseServer, supabaseServiceRole } from '@/lib/supabase/server';
 
 interface PageProps {
   params: Promise<{ id: string }>;
 }
 
-export default async function DashboardRunPage({ params }: PageProps) {
+/** Legacy run URLs → search workspace with results inline. */
+export default async function LegacyRunRedirect({ params }: PageProps) {
   const { id } = await params;
   const supabase = await supabaseServer();
   const {
@@ -17,24 +15,18 @@ export default async function DashboardRunPage({ params }: PageProps) {
   if (!user) redirect('/sign-in');
 
   const sb = supabaseServiceRole();
-  const { data: run } = await sb.from('runs').select('*').eq('id', id).maybeSingle();
+  const { data: run } = await sb
+    .from('runs')
+    .select('user_id, search_profile_id')
+    .eq('id', id)
+    .maybeSingle();
+
   if (!run) notFound();
   if (run.user_id !== user.id) notFound();
 
-  const tier = await getUserPlan(user.id);
+  if (run.search_profile_id) {
+    redirect(`/dashboard/searches/${run.search_profile_id}?run=${id}`);
+  }
 
-  return (
-    <section className="mx-auto flex w-full max-w-3xl flex-col gap-6">
-      <Link href="/dashboard" className="text-sm text-muted-foreground hover:text-foreground">
-        ← Home
-      </Link>
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Search results</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Ranked matches with role summaries and resume comparison
-        </p>
-      </div>
-      <RunPoller runId={id} tier={tier} />
-    </section>
-  );
+  redirect('/dashboard/searches');
 }
