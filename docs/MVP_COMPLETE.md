@@ -1,61 +1,58 @@
-# MVP completion checklist (your steps)
+# MVP completion checklist
 
 Production URL: **https://web-ashen-sigma-71.vercel.app**
 
-Auth is **Google + GitHub OAuth** — no email domain required. Full setup: **[AUTH_OAUTH_SETUP.md](AUTH_OAUTH_SETUP.md)**
+Auth: **Google + GitHub OAuth** — [AUTH_OAUTH_SETUP.md](AUTH_OAUTH_SETUP.md)
 
 ---
 
-## 1. Database — daily limits ✅ (you did this)
+## 1. Database — daily limits
 
-Migration `0007_user_usage.sql` applied.
-
----
-
-## 2. OAuth providers (required for public launch)
-
-Follow **[AUTH_OAUTH_SETUP.md](AUTH_OAUTH_SETUP.md)**:
-
-1. Supabase **Site URL** + **Redirect URLs**
-2. **Google** OAuth app → Supabase Google provider
-3. **GitHub** OAuth app → Supabase GitHub provider
-4. **Allow new users to sign up** ON
-
-Test: incognito → `/sign-up` → Google or GitHub → onboarding.
+Run `0007_user_usage.sql` in Supabase SQL editor if not already applied.
 
 ---
 
-## 3. Deploy latest code (required)
+## 2. OAuth providers
 
-Production may still show old UI (demo link, magic-link copy). Deploy:
+Follow [AUTH_OAUTH_SETUP.md](AUTH_OAUTH_SETUP.md):
+
+1. Supabase Site URL + Redirect URLs
+2. Google OAuth → Supabase Google provider
+3. GitHub OAuth → Supabase GitHub provider
+4. Allow new users to sign up: ON
+
+Test: incognito → `/sign-up` → Google or GitHub → `/dashboard/searches`.
+
+---
+
+## 3. Deploy latest code
 
 ```powershell
-cd c:\Users\jesse\OneDrive\Desktop\n8n-job-funnel\web
-npx vercel deploy --prod --yes --force --archive=tgz
+npm run saas:deploy:only
 ```
 
-Wait for **Ready**. Verify `/sign-up` shows **Continue with Google / GitHub**.
+Or push to Git for auto-deploy.
 
 ---
 
-## 4. Vercel env — live job searches
+## 4. Vercel env — live searches
 
-Confirm **Production** has:
+Confirm Production has:
 
 - `ADZUNA_APP_ID`, `ADZUNA_APP_KEY`, `ADZUNA_COUNTRY=ca`
 - `OPENAI_API_KEY`
 - `NEXT_PUBLIC_APP_URL=https://web-ashen-sigma-71.vercel.app`
 
-Do **not** set `ENGINE_MODE` on Vercel (live by default).
+Do **not** set `ENGINE_MODE` on Vercel.
 
 ---
 
 ## 5. Production smoke test
 
 1. Sign up with Google or GitHub
-2. Onboarding → PDF resume
-3. **Searches** → **Run now**
-4. Results with real jobs + AI summaries
+2. Upload resume + keywords → **Save and search**
+3. Results with real Adzuna jobs + AI summaries
+4. Second search works; daily meter shows usage
 
 ---
 
@@ -63,10 +60,10 @@ Do **not** set `ENGINE_MODE` on Vercel (live by default).
 
 | Step | Status |
 |------|--------|
-| DB migration `0007` | ✅ |
-| Google + GitHub OAuth in Supabase | ⏳ You |
-| Deploy new code | ⏳ |
-| Vercel env (Adzuna) | ⏳ Verify |
-| Smoke test | ⏳ After deploy |
+| DB migration `0007` | ☐ |
+| Google + GitHub OAuth | ☐ |
+| Deploy latest code | ☐ |
+| Vercel env (Adzuna + OpenAI) | ☐ |
+| Smoke test | ☐ |
 
-See also: [PRODUCTHUNT_LAUNCH.md](PRODUCTHUNT_LAUNCH.md)
+See [PRODUCTHUNT_LAUNCH.md](PRODUCTHUNT_LAUNCH.md).

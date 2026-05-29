@@ -29,18 +29,6 @@ export async function updateSession(request: NextRequest) {
 
   const pathname = request.nextUrl.pathname;
 
-  // Legacy search sub-routes → canonical /dashboard/searches (preserves query string)
-  if (pathname === '/dashboard/searches/new' || /^\/dashboard\/searches\/[^/]+$/.test(pathname)) {
-    const url = request.nextUrl.clone();
-    url.pathname = '/dashboard/searches';
-    return NextResponse.redirect(url);
-  }
-  if (/^\/dashboard\/searches\/[^/]+\/edit$/.test(pathname)) {
-    const url = request.nextUrl.clone();
-    url.pathname = '/dashboard/settings/search';
-    return NextResponse.redirect(url);
-  }
-
   const isAuthedRoute = pathname.startsWith('/dashboard') || pathname.startsWith('/onboarding');
   const isAuthRoute = pathname.startsWith('/sign-in') || pathname.startsWith('/sign-up');
 

@@ -1,279 +1,103 @@
 # Connect services — RadarAI setup guide
 
-**Default for demos and MVP:** keep **`ENGINE_MODE=mock`** on Vercel. The app runs end-to-end with fixture jobs — no database migrations beyond the basics, no paid APIs, and no verified email domain required for the public `/demo` flow.
+Fastest path to a working production app. Production URL: **https://web-ashen-sigma-71.vercel.app**
 
-Use this guide when you are ready to connect real infrastructure.
-
-Production URL (current): **https://rapidai-velomails-projects.vercel.app**
-
-> **Note:** Short names like `rapidai.vercel.app` are globally unique on Vercel and may already be taken by another account. This project uses the team production domain above. Add a custom domain (e.g. `app.yourdomain.com`) in Vercel → Project → Domains if you want a shorter URL.
+Full OAuth steps: **[AUTH_OAUTH_SETUP.md](AUTH_OAUTH_SETUP.md)**
 
 ---
 
 ## Quick reference
 
-| Service | Required for `/demo`? | Required for sign-up + dashboard? |
-|---------|----------------------|-----------------------------------|
-| Supabase (DB + auth + storage) | Yes | Yes |
-| Vercel (hosting) | Yes | Yes |
-| `ENGINE_MODE=mock` | Recommended | Recommended for pitches |
-| Resend + verified domain | No | Yes (any-user magic links) |
-| Adzuna job API | No | Only in **live** engine mode |
-| OpenAI | No | Only in **live** engine mode |
+| Service | Required? |
+|---------|-----------|
+| Supabase (DB + auth + storage) | Yes |
+| Vercel (hosting) | Yes |
+| Google + GitHub OAuth (Supabase) | Yes — sign-in |
+| Adzuna (`ADZUNA_APP_ID`, `ADZUNA_APP_KEY`) | Yes for live searches |
+| OpenAI (`OPENAI_API_KEY`) | Yes for live scoring |
+| Resend | Optional — notification emails only |
+| `ENGINE_MODE=mock` | Local dev only — **do not set on Vercel** |
 
 ---
 
-## 1. Database — Supabase
+## 1. Supabase
 
-### Create project
+1. Create project at [supabase.com](https://supabase.com).
+2. Run all files in `db/migrations/` in order (including `0007_user_usage.sql`).
+3. Storage → bucket **`resumes`** (private).
+4. Auth → enable **Google** and **GitHub** — see [AUTH_OAUTH_SETUP.md](AUTH_OAUTH_SETUP.md).
+5. Auth → URL configuration:
+   - Site URL: `https://web-ashen-sigma-71.vercel.app`
+   - Redirect: `https://web-ashen-sigma-71.vercel.app/auth/callback**`
 
-1. [supabase.com](https://supabase.com) → New project.
-2. Note **Project URL**, **anon key**, and **service_role key** (Settings → API).
-
-### Run migrations
-
-In **SQL Editor**, run every file in `db/migrations/` **in order**:
-
-```
-0001_initial.sql
-0002_rls.sql
-0003_storage.sql
-0004_pruning_and_budget.sql
-0005_manual_schedule_default.sql
-0006_search_focus.sql
-```
-
-### Storage bucket
-
-1. Storage → New bucket → name **`resumes`**, **Private**.
-2. Policies are created by `0003_storage.sql`.
-
-### Env vars (local + Vercel)
-
-In `web/.env.local` and Vercel → Settings → Environment Variables:
+Env vars:
 
 ```env
-NEXT_PUBLIC_SUPABASE_URL=https://<your-ref>.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...
-SUPABASE_SERVICE_ROLE_KEY=eyJ...
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
 ```
-
-### Auth redirect URLs
-
-Supabase → **Authentication → URL configuration**:
-
-| Field | Value |
-|-------|--------|
-| Site URL | `https://rapidai-velomails-projects.vercel.app` (or your domain) |
-| Redirect URLs | `https://rapidai-velomails-projects.vercel.app/auth/callback**` |
-| | `http://localhost:3000/auth/callback**` |
 
 ---
 
-## 2. Hosting — Vercel
+## 2. Vercel
 
-### Link and deploy
-
-From repo root:
-
-```bash
-cd web
-npx vercel login          # once
-npx vercel link --yes     # once
-```
-
-Deploy code only (does not overwrite Vercel env):
+Repo deploys from **root** (root `vercel.json` builds `web/`).
 
 ```bash
 npm run saas:deploy:only
 ```
 
-Sync all env from `web/.env.local` to production:
-
-```bash
-npm run saas:deploy
-```
-
-**Important:** set `NEXT_PUBLIC_APP_URL` to your **production** URL before running full env sync — not `http://localhost:3000`.
+Required production env vars:
 
 ```env
-NEXT_PUBLIC_APP_URL=https://rapidai-velomails-projects.vercel.app
-```
-
-Redeploy after changing any `NEXT_PUBLIC_*` variable.
-
----
-
-## 3. Demo mode (recommended default)
-
-Mock engine = in-house fixture jobs + heuristic scoring. No external job or AI APIs.
-
-### Local
-
-In `web/.env.local`:
-
-```env
-ENGINE_MODE=mock
-```
-
-Restart dev: `npm run saas:dev`
-
-### Vercel production
-
-```bash
-npm run saas:engine:mock
-npm run saas:deploy:only
-```
-
-Or manually:
-
-```bash
-cd web
-npx vercel env add ENGINE_MODE production --yes --force --value mock
-npx vercel deploy --prod --yes
-```
-
-Verify: Vercel → Project → Settings → Environment Variables → `ENGINE_MODE` = `mock`.
-
-See [ENGINE_MODE.md](ENGINE_MODE.md) for switching to live APIs.
-
----
-
-## 4. Email — Resend + Supabase SMTP
-
-Required for **sign-up / magic links** for any email address. Not required for `/demo`.
-
-### Problem with test sender
-
-While Supabase SMTP uses `onboarding@resend.dev`, Resend only delivers to **your Resend account email**.
-
-### Fix — verify a domain (~15 min + DNS)
-
-1. [resend.com/domains](https://resend.com/domains) → Add domain (e.g. `mail.yourdomain.com`).
-2. Add DNS records (SPF, DKIM) until status is **Verified**.
-
-### Supabase SMTP
-
-Authentication → [SMTP](https://supabase.com/dashboard/project/_/auth/smtp):
-
-| Field | Value |
-|-------|--------|
-| Sender email | `auth@yourdomain.com` |
-| Sender name | `RadarAI` |
-| Host | `smtp.resend.com` |
-| Port | `465` |
-| Username | `resend` |
-| Password | Your Resend API key (`re_...`) |
-
-### App env
-
-```env
-RESEND_API_KEY=re_...
-EMAIL_FROM=RadarAI <auth@yourdomain.com>
-RESEND_DAILY_HARD_CAP=90
-```
-
-Upload to Vercel, then redeploy.
-
-### Test
-
-```bash
-cd web
-node scripts/test-resend.mjs someone@example.com
-```
-
-Full checklist: [AUTH_OAUTH_SETUP.md](AUTH_OAUTH_SETUP.md)
-
----
-
-## 5. Job API — Adzuna (live mode only)
-
-Skip entirely while `ENGINE_MODE=mock`.
-
-1. [developer.adzuna.com](https://developer.adzuna.com/) → register → create app → copy **App ID** and **App Key**.
-2. Set country code (`ca`, `us`, `gb`, …) to match where users search.
-
-### Env vars
-
-```env
+NEXT_PUBLIC_APP_URL=https://web-ashen-sigma-71.vercel.app
 ADZUNA_APP_ID=
 ADZUNA_APP_KEY=
 ADZUNA_COUNTRY=ca
+OPENAI_API_KEY=
+CRON_SECRET=
 ```
 
-Optional tuning: `ADZUNA_MAX_PRIMARY_QUERIES`, `ADZUNA_FETCH_DELAY_MS`, `ADZUNA_MAX_RETRIES`.
-
-Watch for **429 rate limits** on free tiers. Mock mode avoids this during demos.
+Optional: `RESEND_API_KEY`, `EMAIL_FROM`, `TELEGRAM_BOT_TOKEN`.
 
 ---
 
-## 6. AI scoring — OpenAI (live mode only)
+## 3. Adzuna
 
-Skip while `ENGINE_MODE=mock`.
-
-1. [platform.openai.com/api-keys](https://platform.openai.com/api-keys) → Create key.
-2. Set env:
-
-```env
-OPENAI_API_KEY=sk-...
-```
-
-Default model: `gpt-4o-mini` (configured in engine code).
+1. Register at [developer.adzuna.com](https://developer.adzuna.com/).
+2. Add `ADZUNA_APP_ID`, `ADZUNA_APP_KEY`, `ADZUNA_COUNTRY=ca` to Vercel.
 
 ---
 
-## 7. Cron secret (optional)
+## 4. OpenAI
 
-Vercel cron hits `/api/cron/radar` and `/api/cron/maintenance`:
+1. API key from [platform.openai.com](https://platform.openai.com/).
+2. Default model: `gpt-4o-mini` (override with `OPENAI_MODEL`).
 
-```env
-CRON_SECRET=<random-hex>
-```
+---
 
-Generate: `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`
-
-Manual test:
+## 5. Local dev
 
 ```bash
-curl -H "Authorization: Bearer <CRON_SECRET>" https://rapidai-velomails-projects.vercel.app/api/cron/radar
+cd web
+cp .env.example .env.local
+npm install
+npm run dev
 ```
 
-Free tier uses **manual** runs only; cron is for future Pro digests.
+For UI-only testing without APIs: `ENGINE_MODE=mock` in `.env.local`.
+
+See [LOCAL_DEV.md](LOCAL_DEV.md).
 
 ---
 
-## 8. Switch from demo to live data
+## Launch checklist
 
-When all keys above are set:
+- [ ] All migrations applied
+- [ ] Google + GitHub OAuth configured
+- [ ] Adzuna + OpenAI keys on Vercel
+- [ ] `ENGINE_MODE` **not** set on Vercel
+- [ ] Smoke test: sign up → `/dashboard/searches` → **Search now** → real results
 
-```bash
-npm run saas:engine:live
-npm run saas:deploy:only
-```
-
-This removes `ENGINE_MODE=mock` from Vercel. The app then calls Adzuna + OpenAI + Resend on each run.
-
----
-
-## 9. Post-setup checklist
-
-- [ ] All migrations applied in Supabase
-- [ ] `resumes` storage bucket (private)
-- [ ] `NEXT_PUBLIC_APP_URL` = production URL on Vercel
-- [ ] Supabase redirect URLs include `/auth/callback`
-- [ ] `ENGINE_MODE=mock` for investor demo **or** live keys for real data
-- [ ] Resend domain verified if testing sign-up
-- [ ] Smoke test: `/demo` → upload PDF → results in ~15–30s (mock) or ~60–90s (live)
-- [ ] Smoke test: `/sign-up` with a non-operator email (after domain verification)
-
----
-
-## Related docs
-
-| Doc | Purpose |
-|-----|---------|
-| [PROVISIONING.md](PROVISIONING.md) | Detailed first-time provisioning |
-| [VERCEL_DEPLOY.md](VERCEL_DEPLOY.md) | Vercel import settings |
-| [ENGINE_MODE.md](ENGINE_MODE.md) | Mock vs live commands |
-| [AUTH_OAUTH_SETUP.md](AUTH_OAUTH_SETUP.md) | Google + GitHub sign-in |
-| [LOCAL_DEV.md](LOCAL_DEV.md) | Local development |
+See [MVP_COMPLETE.md](MVP_COMPLETE.md) and [PRODUCTHUNT_LAUNCH.md](PRODUCTHUNT_LAUNCH.md).

@@ -1,54 +1,46 @@
 # Developer Documentation Map
 
-This file consolidates the project markdown docs into clear categories for developers.
-
 ## 1) Getting Started
 
-- `README.md` (repo overview and architecture summary)
-- `PROJECT_STRUCTURE.md` (folder map)
-- `docs/README.md` (docs index)
-- `docs/CONNECT_SERVICES.md` (service hookup flow)
-- `docs/ENV_EXAMPLE.md` (minimal env template)
+- `README.md` — repo overview
+- `PROJECT_STRUCTURE.md` — folder map
+- `docs/README.md` — docs index
+- `docs/CONNECT_SERVICES.md` — service hookup
+- `docs/ENV_EXAMPLE.md` — env template
 
 ## 2) Setup and Deployment
 
-- `docs/PROVISIONING.md` (first-time setup, Supabase + Vercel)
-- `docs/LOCAL_DEV.md` (local run and troubleshooting)
-- `docs/VERCEL_DEPLOY.md` (deployment checklist)
-- `docs/DEBUG_VERCEL.md` (production debug playbook)
+- `docs/PROVISIONING.md` — Supabase + Vercel
+- `docs/LOCAL_DEV.md` — local dev
+- `docs/VERCEL_DEPLOY.md` — deploy checklist
+- `docs/DEBUG_VERCEL.md` — production debug
 
-## 3) Operations and Runbooks
+## 3) Operations
 
-- `docs/RUNBOOK.md` (incident and operations guide)
-- `docs/BACKEND_PROCESS.md` (pipeline and flow diagrams)
-- `docs/ENGINE_MODE.md` (mock/live mode behavior)
-- `docs/SECURITY_AUDIT.md` (current audit findings and hardening)
+- `docs/RUNBOOK.md` — incidents and monitoring
+- `docs/BACKEND_PROCESS.md` — pipeline architecture
+- `docs/ENGINE_MODE.md` — mock/live mode
+- `docs/SECURITY_AUDIT.md` — hardening checklist
 
-## 4) Product
+## 4) Product and launch
 
-- `docs/MONETIZATION.md` (pricing and growth notes)
-- `docs/MVP_COMPLETE.md` (launch checklist)
-- `docs/PRODUCTHUNT_LAUNCH.md` (PH positioning)
+- `docs/MVP_COMPLETE.md` — launch checklist
+- `docs/AUTH_OAUTH_SETUP.md` — OAuth setup
+- `docs/MONETIZATION.md` — pricing roadmap
+- `docs/PRODUCTHUNT_LAUNCH.md` — PH guide
 
-## 5) Auth
+## 5) Auth audit
 
-- `docs/AUTH_OAUTH_SETUP.md` (Google + GitHub sign-in)
-- `docs/AUTH_AUDIT.md` (pre-launch security checklist)
-
-## 6) Personal n8n Stack (Optional)
-
-- `personal/README.md` (canonical personal stack docs)
-- `docs/personal/README.md` (legacy milestones only)
+- `docs/AUTH_AUDIT.md` — pre-launch security checks
 
 ## Archive
 
-- `docs/archive/` — obsolete magic-link and v0 redesign docs
+- `docs/archive/` — obsolete docs (do not use for setup)
 
-## Recommended Read Order
+## Recommended read order
 
 1. `README.md`
-2. `PROJECT_STRUCTURE.md`
-3. `docs/CONNECT_SERVICES.md`
-4. `docs/AUTH_OAUTH_SETUP.md`
-5. `docs/LOCAL_DEV.md`
-6. `docs/MVP_COMPLETE.md`
+2. `docs/CONNECT_SERVICES.md`
+3. `docs/AUTH_OAUTH_SETUP.md`
+4. `docs/LOCAL_DEV.md`
+5. `docs/MVP_COMPLETE.md`

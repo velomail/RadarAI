@@ -1,29 +1,23 @@
 import type { NextConfig } from 'next';
 
+const SEARCH_PAGE = '/dashboard/searches';
+
 const config: NextConfig = {
   serverExternalPackages: ['pdf-parse'],
   async redirects() {
     return [
-      {
-        source: '/demo',
-        destination: '/sign-up',
-        permanent: false,
-      },
-      {
-        source: '/demo/:path*',
-        destination: '/sign-up',
-        permanent: false,
-      },
-      {
-        source: '/results',
-        destination: '/sign-up',
-        permanent: false,
-      },
-      {
-        source: '/dashboard/searches/new',
-        destination: '/dashboard/searches',
-        permanent: false,
-      },
+      // Removed public demo funnel
+      { source: '/demo', destination: '/sign-up', permanent: false },
+      { source: '/demo/:path*', destination: '/sign-up', permanent: false },
+      { source: '/results', destination: '/sign-up', permanent: false },
+      // Legacy dashboard URLs → canonical search workspace (query string preserved)
+      { source: '/dashboard/runs/:id', destination: `${SEARCH_PAGE}?run=:id`, permanent: false },
+      { source: '/dashboard/searches/:id/edit', destination: '/dashboard/settings/search', permanent: false },
+      { source: '/dashboard/searches/new', destination: SEARCH_PAGE, permanent: false },
+      { source: '/dashboard/searches/:id', destination: SEARCH_PAGE, permanent: false },
+      { source: '/dashboard/profiles/:id', destination: SEARCH_PAGE, permanent: false },
+      { source: '/dashboard', destination: SEARCH_PAGE, permanent: false },
+      { source: '/onboarding', destination: SEARCH_PAGE, permanent: false },
     ];
   },
   experimental: {

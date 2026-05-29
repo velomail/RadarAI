@@ -1,11 +1,11 @@
 # Local development — SaaS (`web/`)
 
-The app runs entirely in Next.js. No Docker, no n8n, no VPS.
+The app runs entirely in Next.js on your machine.
 
 ## Prereqs
 
 - Node.js 20+
-- A Supabase project with all files in `db/migrations/` applied (see `PROVISIONING.md` §1)
+- Supabase project with all `db/migrations/` applied
 - Adzuna + OpenAI keys for live mode (mock mode needs neither)
 
 ## Setup
@@ -17,26 +17,23 @@ npm install
 npm run dev          # http://localhost:3000
 ```
 
-### Mock engine (no external APIs)
+From repo root: `npm run saas:dev`
 
-Set in `web/.env.local`:
+### Mock engine (no Adzuna/OpenAI)
 
-```
+```env
 ENGINE_MODE=mock
 ```
 
-| Service | Live mode | Mock mode |
-|---------|-----------|-----------|
-| Adzuna | Real job listings | ~20 synthetic jobs per run |
-| OpenAI scoring | gpt-4o-mini | Keyword-overlap heuristic |
-| Query inference (`auto` focus) | OpenAI | First resume line + fallbacks |
-| Resend email | Sends email | Logs to terminal only |
+| Service | Live | Mock |
+|---------|------|------|
+| Adzuna | Real listings | ~20 synthetic jobs |
+| OpenAI | gpt-4o-mini | Keyword heuristic |
+| Resend | Sends email | Logs only |
 
-Supabase (auth, DB, storage) is still required — only the **job search + AI + email send** stack is mocked.
+Supabase is still required for auth, DB, and storage.
 
-Runs complete in a few seconds with no API keys for Adzuna or OpenAI. Good for UI testing, demos, and MVP walkthroughs.
-
-Minimum variables in `web/.env.local`:
+## Minimum env vars
 
 | Variable | Notes |
 |---|---|
@@ -44,26 +41,22 @@ Minimum variables in `web/.env.local`:
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | same |
 | `SUPABASE_SERVICE_ROLE_KEY` | server-only |
 | `NEXT_PUBLIC_APP_URL` | `http://localhost:3000` |
-| `ADZUNA_APP_ID` / `ADZUNA_APP_KEY` | Live job fetch (skip in mock) |
-| `ADZUNA_COUNTRY` | e.g. `ca` |
-| `OPENAI_API_KEY` | gpt-4o-mini scoring (skip in mock) |
+| `ADZUNA_APP_ID` / `ADZUNA_APP_KEY` | Live mode only |
+| `OPENAI_API_KEY` | Live mode only |
 
 Optional: `RESEND_API_KEY`, `TELEGRAM_BOT_TOKEN`, `CRON_SECRET`.
 
-`CRON_SECRET` can stay empty locally — cron routes only enforce auth when the var is set.
-
 ## How a run works locally
 
-1. `/demo` or dashboard **Run now** creates a `pending` row in Supabase.
-2. `after(() => runEngine(...))` runs the pipeline in `web/lib/engine/` in the same Node process.
-3. The UI polls `/api/runs/[id]` until `status` is `success` or `error`.
+1. **Search now** on `/dashboard/searches` creates a `pending` run in Supabase.
+2. `after(() => runEngine(...))` runs the pipeline in-process.
+3. UI polls `/api/runs/[id]` until `success` or `error`.
 
-Typical runtime: 30–90 seconds depending on how many jobs get scored.
+Typical runtime: 30–90 seconds (live), a few seconds (mock).
 
-## Test the daily cron locally
+## Test cron locally
 
 ```powershell
-# PowerShell — set CRON_SECRET in .env.local first
 curl -H "Authorization: Bearer <CRON_SECRET>" http://localhost:3000/api/cron/radar
 ```
 
@@ -71,31 +64,14 @@ curl -H "Authorization: Bearer <CRON_SECRET>" http://localhost:3000/api/cron/rad
 
 | Symptom | Fix |
 |---|---|
-| Blank page / **500** / `Cannot find module './611.js'` | You ran **`next build`** then **`next dev`** (or OneDrive corrupted `.next`). Stop dev, run `npm run saas:clean`, then `npm run saas:dev`. Never run `npm run saas:build` while dev is running. In OneDrive: **exclude `web\.next` from sync** or move the repo to e.g. `C:\dev\radarai`. |
-| Run stays `pending` | Check the terminal running `npm run dev` for `runEngine failed:` |
-| `Missing ADZUNA_APP_ID` | Add Adzuna keys to `web/.env.local`, or set `ENGINE_MODE=mock` |
-| PDF upload fails | Supabase `resumes` bucket must exist; migrations applied |
-| OpenAI 429 | Lower `OPENAI_SCORE_CONCURRENCY=4` in `.env.local` |
-| No email after run | See **Run-complete email** below |
-| **HTTP 429** / Adzuna rate limit | Wait 1–2 min and retry. Lower `ADZUNA_MAX_PRIMARY_QUERIES` or raise `ADZUNA_FETCH_DELAY_MS`. |
+| 500 / corrupted `.next` | Stop dev, `npm run saas:clean`, restart |
+| Run stays `pending` | Check terminal for `runEngine failed:` |
+| `Missing ADZUNA_APP_ID` | Add keys or set `ENGINE_MODE=mock` |
+| PDF upload fails | Create `resumes` bucket in Supabase |
+| OpenAI 429 | Lower `OPENAI_SCORE_CONCURRENCY=4` |
 
 ## Run-complete email
 
-Email sends only when **“Email me when this search finishes”** is checked on the search profile (Edit search). Saving **Settings → Telegram** no longer clears that preference.
+Optional. Set `RESEND_API_KEY` and enable email on the search profile (Settings → search).
 
-Check Vercel/dev logs for `dispatchNotifications skipped:` — common reasons:
-
-| Log reason | Fix |
-|---|---|
-| `missing_resend_api_key` | Set `RESEND_API_KEY` in Vercel / `web/.env.local` |
-| `resend_403` / “own email” | Resend test sender only delivers to your Resend account email until you verify a domain |
-| `resend_daily_cap_reached` | Wait for UTC day rollover or raise `RESEND_DAILY_HARD_CAP` |
-| `profile_not_found` | Run must be tied to a saved search profile (not demo) |
-| `empty_run` (old builds) | Fixed: zero-match runs now send a “no matches” email |
-
-Preview HTML locally: `npm run saas:preview-email > sample.html`  
-Test Resend API: `npm run saas:test-resend your@email.com`
-
-## Personal funnel (separate)
-
-If you still use the original n8n workflow, see `personal/README.md` — that stack does not share env files with `web/`.
+Preview: `npm run saas:preview-email` · Test send: `npm run saas:test-resend your@email.com`

@@ -44,7 +44,7 @@ Required action:
 ## Controls Verified
 
 - `.gitignore` excludes:
-  - `.env`, `.env.local`, `web/.env.local`, `personal/.env`
+  - `.env`, `.env.local`, `web/.env.local`
   - `web/.next`, `web/.vercel`, `web/node_modules`
 - App code reads keys from env vars, not hardcoded literals.
 

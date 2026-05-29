@@ -24,9 +24,6 @@
     "saas:env:push": "node web/scripts/deploy-vercel.mjs --env-only",
     "saas:adzuna:push": "node web/scripts/push-adzuna-env.mjs",
     "saas:engine:mock": "node web/scripts/set-engine-mode.mjs mock",
-    "saas:engine:live": "node web/scripts/set-engine-mode.mjs live",
-    "personal:up": "docker compose -f personal/docker-compose.yml --env-file personal/.env up -d",
-    "personal:down": "docker compose -f personal/docker-compose.yml down",
-    "personal:deploy": "node personal/scripts/deploy-workflow.mjs"
+    "saas:engine:live": "node web/scripts/set-engine-mode.mjs live"
   }
 }

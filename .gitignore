@@ -7,7 +7,6 @@
 .env.old
 .env.*.local
 web/.env.local
-personal/.env
 
 # Build artifacts
 web/.next
@@ -16,10 +15,6 @@ web/.vercel
 web/out
 web/dist
 *.tsbuildinfo
-
-# Personal n8n runtime (regenerated locally)
-personal/data/
-personal/workflows/job-funnel.generated.json
 
 # Design artifacts and deploy logs
 *.zip
