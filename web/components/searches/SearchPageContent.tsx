@@ -6,6 +6,7 @@ import { InitialSearchSetup } from '@/components/searches/InitialSearchSetup';
 import { RunPoller } from '@/components/runs/RunPoller';
 import { Badge } from '@/components/ui/badge';
 import { getUserPlan } from '@/lib/plan';
+import { SEARCH_PAGE } from '@/lib/constants';
 import { supabaseServer, supabaseServiceRole } from '@/lib/supabase/server';
 import { getDailyUsage } from '@/lib/usage/consume-daily-query';
 import type { Resume, Run, SearchProfile } from '@/lib/types';
@@ -78,7 +79,7 @@ export async function SearchPageContent({ searchParams }: { searchParams: Search
       .eq('id', runId)
       .maybeSingle();
     if (!run || run.user_id !== user.id || run.search_profile_id !== profile.id) {
-      redirect('/dashboard');
+      redirect(SEARCH_PAGE);
     }
   }
 
@@ -117,7 +118,7 @@ export async function SearchPageContent({ searchParams }: { searchParams: Search
             {pastRuns.map((run) => (
               <Link
                 key={run.id}
-                href={`/dashboard?run=${run.id}`}
+                href={`${SEARCH_PAGE}?run=${run.id}`}
                 className="flex items-center justify-between gap-3 border-b border-border/50 px-4 py-3 text-sm transition-colors hover:bg-muted/35 last:border-b-0"
               >
                 <div className="flex min-w-0 items-center gap-3">

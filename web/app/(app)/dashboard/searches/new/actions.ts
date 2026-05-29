@@ -3,7 +3,7 @@
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
-import { MANUAL_SCHEDULE_CRON } from '@/lib/constants';
+import { MANUAL_SCHEDULE_CRON, SEARCH_PAGE } from '@/lib/constants';
 import { parseQueriesFromForm, parseSearchFocus } from '@/lib/parse-search-form';
 import { resolveResumeIdFromForm } from '@/lib/resume/resolve-resume-from-form';
 import { supabaseServer, supabaseServiceRole } from '@/lib/supabase/server';
@@ -43,7 +43,7 @@ export async function createSearchProfile(formData: FormData) {
   try {
     resumeId = await resolveResumeIdFromForm(sb, user.id, formData);
   } catch {
-  redirect('/dashboard?error=resume_missing');
+  redirect(`${SEARCH_PAGE}?error=resume_missing`);
   }
 
   const { error } = await sb.from('search_profiles').insert({
@@ -62,7 +62,6 @@ export async function createSearchProfile(formData: FormData) {
   });
   if (error) throw new Error(error.message);
 
-  revalidatePath('/dashboard');
-  revalidatePath('/dashboard');
-  redirect('/dashboard');
+  revalidatePath(SEARCH_PAGE);
+  redirect(SEARCH_PAGE);
 }

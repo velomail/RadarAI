@@ -3,6 +3,7 @@ import { notFound, redirect } from 'next/navigation';
 import { DashboardPage } from '@/components/layout/DashboardPage';
 import { SearchProfileFields } from '@/components/profile/SearchProfileFields';
 import { Button } from '@/components/ui/button';
+import { SEARCH_PAGE } from '@/lib/constants';
 import { supabaseServer, supabaseServiceRole } from '@/lib/supabase/server';
 import type { Resume, SearchProfile } from '@/lib/types';
 import { deleteProfile, updateProfile } from '@/app/(app)/dashboard/searches/[id]/actions';
@@ -41,7 +42,7 @@ export default async function SearchSettingsPage() {
 
   return (
     <DashboardPage
-      backHref="/dashboard"
+      backHref={SEARCH_PAGE}
       backLabel="Search"
       title="Email alerts & advanced settings"
       description="Optional notifications and saved search defaults."
@@ -53,7 +54,7 @@ export default async function SearchSettingsPage() {
             {latestResume?.original_filename || 'Not on file'}
           </span>
           {' · '}
-          <Link href="/dashboard" className="font-medium text-primary hover:underline">
+          <Link href={SEARCH_PAGE} className="font-medium text-primary hover:underline">
             Update resume
           </Link>
         </div>

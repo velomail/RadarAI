@@ -1,15 +1,10 @@
-import { redirect } from 'next/navigation';
+import { SearchPageContent } from '@/components/searches/SearchPageContent';
 
 interface PageProps {
   searchParams: Promise<{ run?: string; error?: string }>;
 }
 
-/** Legacy URL — job search lives on /dashboard only. */
-export default async function SearchesRedirect({ searchParams }: PageProps) {
+export default async function SearchesPage({ searchParams }: PageProps) {
   const sp = await searchParams;
-  const q = new URLSearchParams();
-  if (sp.run) q.set('run', sp.run);
-  if (sp.error) q.set('error', sp.error);
-  const suffix = q.toString() ? `?${q.toString()}` : '';
-  redirect(`/dashboard${suffix}`);
+  return <SearchPageContent searchParams={sp} />;
 }

@@ -11,7 +11,7 @@ interface PageProps {
 
 export default async function SignInPage({ searchParams }: PageProps) {
   const sp = await searchParams;
-  const redirectTo = safeAuthRedirect(sp.redirect, '/dashboard');
+  const redirectTo = safeAuthRedirect(sp.redirect);
 
   return (
     <main className="gradient-mesh relative flex min-h-screen flex-col">

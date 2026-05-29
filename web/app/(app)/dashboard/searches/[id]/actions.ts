@@ -3,7 +3,7 @@
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
-import { MANUAL_SCHEDULE_CRON } from '@/lib/constants';
+import { MANUAL_SCHEDULE_CRON, SEARCH_PAGE } from '@/lib/constants';
 import { parseQueriesFromForm, parseSearchFocus } from '@/lib/parse-search-form';
 import { resolveResumeIdFromForm } from '@/lib/resume/resolve-resume-from-form';
 import { supabaseServer, supabaseServiceRole } from '@/lib/supabase/server';
@@ -64,9 +64,8 @@ export async function updateProfile(profileId: string, formData: FormData) {
     .eq('id', profileId);
   if (error) throw new Error(error.message);
 
-  revalidatePath('/dashboard');
-  revalidatePath('/dashboard');
-  redirect('/dashboard');
+  revalidatePath(SEARCH_PAGE);
+  redirect(SEARCH_PAGE);
 }
 
 export async function deleteProfile(profileId: string) {
@@ -79,7 +78,6 @@ export async function deleteProfile(profileId: string) {
     .maybeSingle();
   if (!existing || existing.user_id !== user.id) throw new Error('Profile not found.');
   await sb.from('search_profiles').delete().eq('id', profileId);
-  revalidatePath('/dashboard');
-  revalidatePath('/dashboard');
-  redirect('/dashboard');
+  revalidatePath(SEARCH_PAGE);
+  redirect(SEARCH_PAGE);
 }

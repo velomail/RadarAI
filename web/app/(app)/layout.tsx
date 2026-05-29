@@ -4,6 +4,7 @@ import { Radar } from 'lucide-react';
 import { AppNav } from '@/components/layout/AppNav';
 import { MockModeBanner } from '@/components/layout/MockModeBanner';
 import { APP_NAME } from '@/lib/brand';
+import { SEARCH_PAGE } from '@/lib/constants';
 import { supabaseServer } from '@/lib/supabase/server';
 import { signOut } from '../(auth)/actions';
 
@@ -20,7 +21,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       <header className="border-b border-border/50">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
           <div className="flex items-center gap-8">
-            <Link href="/dashboard" className="group flex items-center gap-2 text-lg font-semibold tracking-tight">
+            <Link href={SEARCH_PAGE} className="group flex items-center gap-2 text-lg font-semibold tracking-tight">
               <div className="relative">
                 <div className="absolute inset-0 rounded-full bg-primary/20 blur-lg transition-colors group-hover:bg-primary/30" />
                 <Radar className="relative h-6 w-6 text-primary" />

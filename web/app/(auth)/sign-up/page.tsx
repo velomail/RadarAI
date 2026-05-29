@@ -3,6 +3,7 @@ import { Radar } from 'lucide-react';
 import { AuthHashRedirect } from '@/components/auth/AuthHashRedirect';
 import { OAuthButtons } from '@/components/auth/oauth-buttons';
 import { formatAuthError } from '@/lib/auth-errors';
+import { SEARCH_PAGE } from '@/lib/constants';
 
 interface PageProps {
   searchParams: Promise<{ error?: string }>;
@@ -49,7 +50,7 @@ export default async function SignUpPage({ searchParams }: PageProps) {
               );
             })() : null}
 
-            <OAuthButtons redirectTo="/dashboard" />
+            <OAuthButtons redirectTo={SEARCH_PAGE} />
           </div>
           <p className="mt-6 text-center text-sm text-muted-foreground">
             Already signed up?{' '}

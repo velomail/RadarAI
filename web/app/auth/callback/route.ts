@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import type { EmailOtpType } from '@supabase/supabase-js';
 import { safeAuthRedirect } from '@/lib/auth-utils';
+import { SEARCH_PAGE } from '@/lib/constants';
 import {
   createSupabaseRouteHandlerClient,
   redirectWithSessionCookies,
 } from '@/lib/supabase/route-handler';
-import { supabaseServiceRole } from '@/lib/supabase/server';
 
 function authErrorRedirect(origin: string, message: string) {
   return NextResponse.redirect(
@@ -13,24 +13,16 @@ function authErrorRedirect(origin: string, message: string) {
   );
 }
 
-async function resolvePostAuthPath(userId: string, next: string): Promise<string> {
-  if (next !== '/dashboard') return next;
-
-  const sb = supabaseServiceRole();
-  const { count } = await sb
-    .from('search_profiles')
-    .select('id', { count: 'exact', head: true })
-    .eq('user_id', userId);
-
-  if (!count || count === 0) return '/dashboard';
-  return next;
+function resolvePostAuthPath(next: string): string {
+  if (next !== SEARCH_PAGE && next !== '/dashboard') return next;
+  return SEARCH_PAGE;
 }
 
 export async function GET(req: NextRequest) {
   const url = req.nextUrl;
   const next = safeAuthRedirect(
     url.searchParams.get('next') || url.searchParams.get('redirect'),
-    '/dashboard',
+    SEARCH_PAGE,
   );
 
   const oauthError = url.searchParams.get('error');
@@ -68,7 +60,7 @@ export async function GET(req: NextRequest) {
     return authErrorRedirect(url.origin, 'Sign-in succeeded but no user session was created.');
   }
 
-  const redirectPath = await resolvePostAuthPath(userId, next);
+  const redirectPath = resolvePostAuthPath(next);
 
   return redirectWithSessionCookies(
     new URL(redirectPath, url.origin),

@@ -5,7 +5,7 @@ import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { runEngine } from '@/lib/engine';
-import { MANUAL_SCHEDULE_CRON } from '@/lib/constants';
+import { MANUAL_SCHEDULE_CRON, SEARCH_PAGE } from '@/lib/constants';
 import { parseQueriesFromForm, parseSearchFocus } from '@/lib/parse-search-form';
 import { supabaseServer, supabaseServiceRole } from '@/lib/supabase/server';
 import { consumeDailyQuery } from '@/lib/usage/consume-daily-query';
@@ -73,12 +73,12 @@ export async function runJobSearch(profileId: string, formData: FormData) {
 
   const resumeText: string = profile.resume?.parsed_text || '';
   if (!resumeText || resumeText.length < 100) {
-    redirect('/dashboard?error=resume_missing');
+    redirect(`${SEARCH_PAGE}?error=resume_missing`);
   }
 
   const quota = await consumeDailyQuery(user.id);
   if (!quota.allowed) {
-    redirect('/dashboard?error=daily_limit');
+    redirect(`${SEARCH_PAGE}?error=daily_limit`);
   }
 
   const { data: run, error: runErr } = await sb
@@ -108,6 +108,6 @@ export async function runJobSearch(profileId: string, formData: FormData) {
     });
   });
 
-  revalidatePath('/dashboard');
-  redirect(`/dashboard?run=${run.id}`);
+  revalidatePath(SEARCH_PAGE);
+  redirect(`${SEARCH_PAGE}?run=${run.id}`);
 }

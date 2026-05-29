@@ -1,3 +1,6 @@
+/** Primary job search screen (centered). */
+export const SEARCH_PAGE = '/dashboard/searches';
+
 /** Profiles with this cron value are on-demand only (no scheduled newsletter). */
 export const MANUAL_SCHEDULE_CRON = 'manual';
 

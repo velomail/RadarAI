@@ -1,6 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
+import { SEARCH_PAGE } from '@/lib/constants';
 import { resolveResumeIdFromForm } from '@/lib/resume/resolve-resume-from-form';
 import { supabaseServer, supabaseServiceRole } from '@/lib/supabase/server';
 
@@ -27,6 +28,5 @@ export async function updateAccountResume(formData: FormData) {
     .update({ resume_id: resumeId })
     .eq('user_id', user.id);
 
-  revalidatePath('/dashboard');
-  revalidatePath('/dashboard');
+  revalidatePath(SEARCH_PAGE);
 }

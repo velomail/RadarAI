@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { ChevronRight, MapPin } from 'lucide-react';
 import { RunNowButton } from '@/components/dashboard/RunNowButton';
+import { SEARCH_PAGE } from '@/lib/constants';
 import type { SearchProfile } from '@/lib/types';
 
 export function SearchProfileCard({ profile }: { profile: SearchProfile }) {
@@ -11,7 +12,7 @@ export function SearchProfileCard({ profile }: { profile: SearchProfile }) {
   return (
     <div className="glass overflow-hidden rounded-2xl">
       <Link
-        href={`/dashboard/searches/${profile.id}`}
+        href={SEARCH_PAGE}
         className="flex items-center justify-between gap-4 border-b border-border/40 px-5 py-4 transition-colors hover:bg-muted/30"
       >
         <div className="min-w-0">

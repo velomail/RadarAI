@@ -4,6 +4,7 @@ import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowRight, Sparkles } from 'lucide-react';
+import { SEARCH_PAGE } from '@/lib/constants';
 import { Button } from '@/components/ui/button';
 
 export function RunNowButton({
@@ -42,7 +43,7 @@ export function RunNowButton({
               return;
             }
             const { run_id } = await res.json();
-            router.replace(`/dashboard?run=${run_id}`);
+            router.replace(`${SEARCH_PAGE}?run=${run_id}`);
           })
         }
       >

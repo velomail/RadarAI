@@ -1,5 +1,6 @@
 import { isMockEngine, mockEngineLabel } from './engine-mode';
 import { APP_NAME, DEFAULT_EMAIL_FROM } from '../brand';
+import { SEARCH_PAGE } from '../constants';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Job, SearchProfile } from '../types';
 
@@ -201,7 +202,7 @@ export async function dispatchNotifications(
 
   const jobsList: Job[] = Array.isArray(jobs) ? (jobs as Job[]) : [];
   const runUrl = run.search_profile_id
-    ? `${APP_URL}/dashboard?run=${runId}`
+    ? `${APP_URL}${SEARCH_PAGE}?run=${runId}`
     : `${APP_URL}/dashboard/runs/${runId}`;
 
   let emailBudgetUsed = await readEmailBudgetUsed(sb);

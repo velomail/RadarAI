@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation';
+import { SEARCH_PAGE } from '@/lib/constants';
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -9,6 +10,6 @@ interface PageProps {
 export default async function LegacySearchProfileRedirect({ params, searchParams }: PageProps) {
   const { id } = await params;
   const { run } = await searchParams;
-  if (run) redirect(`/dashboard?run=${run}`);
-  redirect('/dashboard');
+  if (run) redirect(`${SEARCH_PAGE}?run=${run}`);
+  redirect(SEARCH_PAGE);
 }

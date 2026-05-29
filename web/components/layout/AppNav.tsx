@@ -2,14 +2,15 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { SEARCH_PAGE } from '@/lib/constants';
 import { cn } from '@/lib/utils';
 
 const links = [
   {
-    href: '/dashboard',
+    href: SEARCH_PAGE,
     label: 'Search',
     match: (p: string) =>
-      p === '/dashboard' || p.startsWith('/dashboard/runs'),
+      p === SEARCH_PAGE || p === '/dashboard' || p.startsWith('/dashboard/runs'),
   },
   { href: '/dashboard/settings', label: 'Settings', match: (p: string) => p.startsWith('/dashboard/settings') },
 ] as const;

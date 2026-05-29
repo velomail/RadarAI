@@ -20,14 +20,9 @@ const config: NextConfig = {
         permanent: false,
       },
       {
-        source: '/dashboard/searches',
-        destination: '/dashboard',
-        permanent: true,
-      },
-      {
         source: '/dashboard/searches/new',
-        destination: '/dashboard',
-        permanent: true,
+        destination: '/dashboard/searches',
+        permanent: false,
       },
     ];
   },

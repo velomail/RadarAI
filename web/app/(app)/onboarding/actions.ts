@@ -2,7 +2,7 @@
 
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
-import { MANUAL_SCHEDULE_CRON } from '@/lib/constants';
+import { MANUAL_SCHEDULE_CRON, SEARCH_PAGE } from '@/lib/constants';
 import { parseQueriesFromForm, parseSearchFocus } from '@/lib/parse-search-form';
 import { resolveResumeIdFromForm } from '@/lib/resume/resolve-resume-from-form';
 import { supabaseServer, supabaseServiceRole } from '@/lib/supabase/server';
@@ -54,7 +54,7 @@ export async function createOnboardingProfile(formData: FormData) {
   });
   if (profErr) throw new Error(profErr.message);
 
-  redirect('/dashboard');
+  redirect(SEARCH_PAGE);
 }
 
 async function getUser() {

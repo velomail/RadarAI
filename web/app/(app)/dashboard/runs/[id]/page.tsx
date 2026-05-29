@@ -1,4 +1,5 @@
 import { notFound, redirect } from 'next/navigation';
+import { SEARCH_PAGE } from '@/lib/constants';
 import { supabaseServer, supabaseServiceRole } from '@/lib/supabase/server';
 
 interface PageProps {
@@ -25,8 +26,8 @@ export default async function LegacyRunRedirect({ params }: PageProps) {
   if (run.user_id !== user.id) notFound();
 
   if (run.search_profile_id) {
-    redirect(`/dashboard?run=${id}`);
+    redirect(`${SEARCH_PAGE}?run=${id}`);
   }
 
-  redirect('/dashboard');
+  redirect(SEARCH_PAGE);
 }
