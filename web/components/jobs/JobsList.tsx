@@ -1,6 +1,6 @@
 import type { UserPlan } from '@/lib/plan';
 import type { Job, Run } from '@/lib/types';
-import { formatSourcesBreakdown } from '@/lib/format-display';
+import { formatSourcesBreakdown, runUsesSampleData } from '@/lib/format-display';
 import { JobCard } from './JobCard';
 import { Badge } from '@/components/ui/badge';
 
@@ -15,9 +15,17 @@ function StatBlock({ label, value }: { label: string; value: number }) {
 
 export function RunSummary({ run }: { run: Run }) {
   const sources = formatSourcesBreakdown(run.sources_breakdown);
+  const sampleData = runUsesSampleData(run.sources_breakdown);
 
   return (
     <div className="glass overflow-hidden rounded-2xl">
+      {sampleData ? (
+        <div className="border-b border-amber-500/30 bg-amber-500/10 px-5 py-3 text-sm text-amber-950 md:px-6">
+          <strong>Sample listings</strong> — this run used demo/fixture data, not live Adzuna jobs.
+          Remove <code className="rounded bg-black/10 px-1">ENGINE_MODE=mock</code> on Vercel and run again
+          for real results.
+        </div>
+      ) : null}
       <div className="border-b border-border/40 bg-white/40 px-5 py-4 md:px-6">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>

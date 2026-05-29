@@ -5,6 +5,7 @@ import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { MANUAL_SCHEDULE_CRON } from '@/lib/constants';
 import { parseQueriesFromForm, parseSearchFocus } from '@/lib/parse-search-form';
+import { resolveResumeIdFromForm } from '@/lib/resume/resolve-resume-from-form';
 import { supabaseServer, supabaseServiceRole } from '@/lib/supabase/server';
 
 const Schema = z.object({
@@ -45,10 +46,13 @@ export async function updateProfile(profileId: string, formData: FormData) {
     .maybeSingle();
   if (!existing || existing.user_id !== user.id) throw new Error('Profile not found.');
 
+  const resumeId = await resolveResumeIdFromForm(sb, user.id, formData);
+
   const { error } = await sb
     .from('search_profiles')
     .update({
       name: parsed.name,
+      resume_id: resumeId,
       queries,
       search_focus: searchFocus,
       location: parsed.location,

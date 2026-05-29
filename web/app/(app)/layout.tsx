@@ -18,7 +18,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     <div className="gradient-mesh flex min-h-screen flex-col">
       <MockModeBanner />
       <header className="border-b border-border/50">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
           <div className="flex items-center gap-8">
             <Link href="/dashboard" className="group flex items-center gap-2 text-lg font-semibold tracking-tight">
               <div className="relative">
@@ -39,7 +39,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           </div>
         </div>
       </header>
-      <main className="relative mx-auto w-full max-w-5xl flex-1 px-6 py-10">{children}</main>
+      <main className="relative mx-auto w-full max-w-6xl flex-1 px-6 py-12 md:px-8">{children}</main>
     </div>
   );
 }

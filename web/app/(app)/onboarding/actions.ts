@@ -2,10 +2,9 @@
 
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
-import { extractPdfText } from '@/lib/pdf';
 import { MANUAL_SCHEDULE_CRON } from '@/lib/constants';
 import { parseQueriesFromForm, parseSearchFocus } from '@/lib/parse-search-form';
-import { storageUploadError } from '@/lib/storage-errors';
+import { resolveResumeIdFromForm } from '@/lib/resume/resolve-resume-from-form';
 import { supabaseServer, supabaseServiceRole } from '@/lib/supabase/server';
 
 const Schema = z.object({
@@ -19,22 +18,13 @@ const Schema = z.object({
 
 export async function createOnboardingProfile(formData: FormData) {
   const user = await getUser();
-  const searchFocus = parseSearchFocus(formData);
-  const queries = parseQueriesFromForm(formData, searchFocus);
-
   const file = formData.get('resume');
   if (!(file instanceof File) || file.size === 0) {
     throw new Error('Resume file is required.');
   }
-  if (file.size > 2 * 1024 * 1024) {
-    throw new Error('Resume must be under 2MB on the free tier.');
-  }
 
-  const buf = Buffer.from(await file.arrayBuffer());
-  const resumeText = await extractPdfText(buf);
-  if (!resumeText || resumeText.length < 100) {
-    throw new Error('Could not extract enough text from this PDF.');
-  }
+  const searchFocus = parseSearchFocus(formData);
+  const queries = parseQueriesFromForm(formData, searchFocus);
 
   const parsed = Schema.parse({
     name: formData.get('name')?.toString() ?? '',
@@ -46,33 +36,12 @@ export async function createOnboardingProfile(formData: FormData) {
   });
 
   const sb = supabaseServiceRole();
-
-  const storagePath = `auth/${user.id}/${Date.now()}-${file.name}`;
-  const { error: upErr } = await sb.storage
-    .from('resumes')
-    .upload(storagePath, buf, {
-      contentType: file.type || 'application/pdf',
-      upsert: false,
-    });
-  if (upErr) throw storageUploadError(upErr.message);
-
-  const { data: resume, error: resErr } = await sb
-    .from('resumes')
-    .insert({
-      user_id: user.id,
-      storage_path: storagePath,
-      original_filename: file.name,
-      parsed_text: resumeText,
-      char_count: resumeText.length,
-    })
-    .select()
-    .single();
-  if (resErr || !resume) throw new Error(resErr?.message || 'Failed to save resume.');
+  const resumeId = await resolveResumeIdFromForm(sb, user.id, formData);
 
   const { error: profErr } = await sb.from('search_profiles').insert({
     user_id: user.id,
     name: parsed.name,
-    resume_id: resume.id,
+    resume_id: resumeId,
     queries,
     search_focus: searchFocus,
     location: parsed.location,

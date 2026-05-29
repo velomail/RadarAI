@@ -3,8 +3,16 @@
 const SOURCE_LABELS: Record<string, string> = {
   jsearch: 'Job boards',
   linkedin: 'LinkedIn',
-  mock: 'Aggregated',
+  adzuna: 'Adzuna',
+  mock: 'Sample data',
 };
+
+export function runUsesSampleData(sources: Record<string, number> | null | undefined): boolean {
+  if (!sources) return false;
+  return Object.entries(sources).some(
+    ([source, count]) => count > 0 && (source === 'mock' || source === 'jsearch' || source === 'linkedin'),
+  ) && !sources.adzuna;
+}
 
 export function formatSourceLabel(source: string): string {
   return SOURCE_LABELS[source.toLowerCase()] ?? source;

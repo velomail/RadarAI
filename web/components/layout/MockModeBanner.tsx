@@ -2,13 +2,13 @@ import { isMockEngine } from '@/lib/engine/engine-mode';
 
 export function MockModeBanner() {
   if (!isMockEngine()) return null;
-  if (process.env.NODE_ENV === 'production') return null;
 
   return (
-    <div className="border-b border-primary/20 bg-primary/5 px-4 py-2 text-center text-xs text-muted-foreground">
-      <span className="font-medium text-foreground">Development mode</span>
+    <div className="border-b border-amber-500/30 bg-amber-500/10 px-4 py-2.5 text-center text-sm text-amber-950 dark:text-amber-100">
+      <span className="font-medium">Sample job data mode</span>
       {' · '}
-      Sample job data — no live API calls
+      Results are fixture listings, not live Adzuna jobs. Remove{' '}
+      <code className="rounded bg-black/10 px-1">ENGINE_MODE=mock</code> on Vercel for real searches.
     </div>
   );
 }

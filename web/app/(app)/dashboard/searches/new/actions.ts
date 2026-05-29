@@ -5,6 +5,7 @@ import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { MANUAL_SCHEDULE_CRON } from '@/lib/constants';
 import { parseQueriesFromForm, parseSearchFocus } from '@/lib/parse-search-form';
+import { resolveResumeIdFromForm } from '@/lib/resume/resolve-resume-from-form';
 import { supabaseServer, supabaseServiceRole } from '@/lib/supabase/server';
 
 const Schema = z.object({
@@ -38,23 +39,17 @@ export async function createSearchProfile(formData: FormData) {
   });
 
   const sb = supabaseServiceRole();
-
-  const { data: existingResume } = await sb
-    .from('resumes')
-    .select('id')
-    .eq('user_id', user.id)
-    .order('created_at', { ascending: false })
-    .limit(1)
-    .maybeSingle();
-
-  if (!existingResume) {
+  let resumeId: string;
+  try {
+    resumeId = await resolveResumeIdFromForm(sb, user.id, formData);
+  } catch {
     redirect('/onboarding');
   }
 
   const { error } = await sb.from('search_profiles').insert({
     user_id: user.id,
     name: parsed.name,
-    resume_id: existingResume.id,
+    resume_id: resumeId,
     queries,
     search_focus: searchFocus,
     location: parsed.location,
