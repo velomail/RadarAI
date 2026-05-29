@@ -17,8 +17,9 @@ export function NewsletterUpsell() {
             best matches — fresh roles in your inbox without opening the app.
           </p>
           <p className="text-xs text-muted-foreground">
-            Today: use <strong className="font-medium text-foreground">Run search</strong> on the
-            dashboard whenever you want results.
+            Today: open <strong className="font-medium text-foreground">Search</strong> in the nav,
+            then click <strong className="font-medium text-foreground">Search now</strong> whenever
+            you want results (3 free searches per day).
           </p>
         </div>
       </div>

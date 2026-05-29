@@ -17,13 +17,23 @@ if (mode !== 'mock' && mode !== 'live') {
   process.exit(1);
 }
 
-function vercel(args) {
+function vercel(args, { allowMissing = false } = {}) {
   const r = spawnSync('npx', ['vercel', ...args], {
     cwd: webRoot,
     shell: true,
-    stdio: 'inherit',
+    encoding: 'utf8',
+    stdio: ['inherit', 'pipe', 'pipe'],
   });
-  if (r.status !== 0) process.exit(r.status ?? 1);
+  const out = `${r.stdout ?? ''}${r.stderr ?? ''}`;
+  if (r.stdout) process.stdout.write(r.stdout);
+  if (r.stderr) process.stderr.write(r.stderr);
+  if (r.status !== 0) {
+    if (allowMissing && /Environment Variable was not found/i.test(out)) {
+      console.log('(ENGINE_MODE was already removed — nothing to do.)');
+      return;
+    }
+    process.exit(r.status ?? 1);
+  }
 }
 
 if (mode === 'mock') {
@@ -32,7 +42,7 @@ if (mode === 'mock') {
   console.log('\nDone. Redeploy for it to take effect:  npm run saas:deploy:only');
 } else {
   console.log('Removing ENGINE_MODE from Vercel production (live / real APIs)…');
-  vercel(['env', 'rm', 'ENGINE_MODE', 'production', '--yes']);
+  vercel(['env', 'rm', 'ENGINE_MODE', 'production', '--yes'], { allowMissing: true });
   console.log('\nDone. Redeploy for it to take effect:  npm run saas:deploy:only');
   console.log('Ensure ADZUNA_APP_ID, ADZUNA_APP_KEY, and OPENAI_API_KEY are set — see docs/ENGINE_MODE.md');
 }
