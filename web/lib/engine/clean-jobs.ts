@@ -1,3 +1,4 @@
+import { isWithinMaxAge } from './adzuna-filters';
 import type { CleanJob, RawJob } from './types';
 
 const MAX_DESCRIPTION_CHARS = 6000;
@@ -72,7 +73,7 @@ function normalizeJob(raw: RawJob): CleanJob {
     posted_at: raw.job_posted_at_datetime_utc || raw.job_posted_at || '',
     employment_type: raw.job_employment_type || '',
     publisher: raw.job_publisher || '',
-    source: raw.source || 'jsearch',
+    source: raw.source || 'adzuna',
     matched_query: raw._matched_query || '',
     direct_ats: !!raw.direct_ats,
     external_apply_url: raw.external_apply_url || '',
@@ -99,7 +100,8 @@ function isUsableJob(job: CleanJob, remoteOnly: boolean): boolean {
   return true;
 }
 
-export function cleanJobs(rawJobs: RawJob[], remoteOnly: boolean): CleanJob[] {
+export function cleanJobs(rawJobs: RawJob[], remoteOnly: boolean, maxDaysOld?: number): CleanJob[] {
+  const maxAgeDays = maxDaysOld ?? 7;
   const seen = new Set<string>();
   const cleaned: CleanJob[] = [];
   let droppedByPublisher = 0;
@@ -107,6 +109,7 @@ export function cleanJobs(rawJobs: RawJob[], remoteOnly: boolean): CleanJob[] {
   for (const raw of rawJobs) {
     const job = normalizeJob(raw);
     if (!isUsableJob(job, remoteOnly)) continue;
+    if (!isWithinMaxAge(job.posted_at, maxAgeDays)) continue;
     if (isDenylistedPublisher(job.publisher)) {
       droppedByPublisher++;
       continue;

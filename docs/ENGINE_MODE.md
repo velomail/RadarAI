@@ -4,11 +4,11 @@ The search pipeline reads **`ENGINE_MODE`**:
 
 | Value | Behavior |
 |-------|----------|
-| **`mock`** | In-house fixture jobs + heuristic scoring. No RapidAPI, OpenAI, or Resend calls. |
-| **unset / anything else** | **Live** — real JSearch, LinkedIn, OpenAI, Resend (requires API keys). |
+| **`mock`** | In-house fixture jobs + heuristic scoring. No Adzuna, OpenAI, or Resend calls. |
+| **unset / anything else** | **Live** — real Adzuna listings, OpenAI scoring, Resend (requires API keys). |
 
 Use **mock** for MVP demos and UI testing when external APIs are rate-limited or not configured.  
-Use **live** when RapidAPI + OpenAI keys are set and you want real job board results.
+Use **live** when Adzuna + OpenAI keys are set and you want real job listings.
 
 ---
 
@@ -59,7 +59,7 @@ npm run saas:deploy:only
 
 ### Switch to real data (live APIs)
 
-Requires `RAPIDAPI_KEY`, `OPENAI_API_KEY`, etc. in Vercel env (see [VERCEL_DEPLOY.md](VERCEL_DEPLOY.md)).
+Requires `ADZUNA_APP_ID`, `ADZUNA_APP_KEY`, `OPENAI_API_KEY`, etc. in Vercel env (see [VERCEL_DEPLOY.md](VERCEL_DEPLOY.md)).
 
 ```bash
 cd web
@@ -83,7 +83,7 @@ Check Vercel → **Project → Settings → Environment Variables** for `ENGINE_
 During a run, **mock** logs appear in Vercel function logs:
 
 ```text
-[mock engine] Run … — no RapidAPI / OpenAI / Resend calls
+[mock engine] Run … — no Adzuna / OpenAI / Resend calls
 ```
 
 ```bash
@@ -94,7 +94,7 @@ npm run saas:logs
 
 ## Deploy checklist
 
-1. Code deployed: `npm run saas:deploy:only` (or `npm run saas:deploy` to sync all env from `web/.env.local`).
+1. Code deployed via git push (Vercel auto-deploy) or `npm run saas:deploy:only`.
 2. Supabase migrations applied (`db/migrations/` including `0006_search_focus.sql`).
 3. Choose engine mode (commands above).
 4. **Redeploy** after any env change.

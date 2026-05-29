@@ -89,7 +89,7 @@ export function SearchFocusFields({
           }
         />
         <p className="text-xs text-muted-foreground">
-          Each phrase is searched across LinkedIn and 30+ job boards.
+          Each phrase is searched on Adzuna job listings.
         </p>
       </div>
 

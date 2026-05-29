@@ -1,5 +1,6 @@
 import { supabaseServiceRole } from '@/lib/supabase/server';
 import { isMockEngine, mockEngineLabel } from './engine-mode';
+import { maxDaysOldFromEnv } from './adzuna-filters';
 import { cleanJobs } from './clean-jobs';
 import { dispatchNotifications } from './dispatch-notifications';
 import { fetchSources } from './fetch-sources';
@@ -32,7 +33,7 @@ export async function runEngine(payload: EnginePayload): Promise<EngineResult | 
 
   try {
     if (isMockEngine()) {
-      console.info(`${mockEngineLabel()} Run ${runId} — no RapidAPI / OpenAI / Resend calls`);
+      console.info(`${mockEngineLabel()} Run ${runId} — no Adzuna / OpenAI / Resend calls`);
     }
 
     if (!payload.resume_text || payload.resume_text.trim().length < 100) {
@@ -57,9 +58,22 @@ export async function runEngine(payload: EnginePayload): Promise<EngineResult | 
 
     const fetched = await fetchSources(enginePayload);
 
-    const { filtered } = await loadSeenAndFilter(sb, payload.user_id, fetched.data);
+    const { filtered, seen_filtered: seenFiltered } = await loadSeenAndFilter(
+      sb,
+      payload.user_id,
+      fetched.data,
+    );
 
-    const cleaned = cleanJobs(filtered.length ? filtered : fetched.data, !!enginePayload.remote_only);
+    if (filtered.length === 0) {
+      if (seenFiltered > 0) {
+        throw new Error(
+          'All recent Adzuna matches were already shown in your last 14 days. Adjust search terms or run again later for fresh listings.',
+        );
+      }
+      throw new Error('No new relevant jobs passed filters for this search.');
+    }
+
+    const cleaned = cleanJobs(filtered, !!enginePayload.remote_only, maxDaysOldFromEnv());
 
     const toScore = prioritizeJobsForScoring(cleaned).slice(0, MAX_JOBS_TO_SCORE);
     if (toScore.length < cleaned.length) {

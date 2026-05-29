@@ -29,7 +29,7 @@ In **Project → Settings → Environment Variables**, add every variable from `
 
 Do **not** set `ENGINE_MODE` on Vercel (live by default). Use `ENGINE_MODE=mock` only in local `.env.local` for dev.
 
-Optional: `RAPIDAPI_KEY`, LinkedIn vars (not used by current live fetch), `TELEGRAM_BOT_TOKEN`, OpenAI tuning vars.
+Optional: `ADZUNA_MAX_*` tuning, `TELEGRAM_BOT_TOKEN`, OpenAI tuning vars.
 
 Sync from local: `npm run saas:env:push` then `npm run saas:deploy:only`.
 

@@ -1,8 +1,6 @@
 /** Display helpers shared by job results UI (mock + live). */
 
 const SOURCE_LABELS: Record<string, string> = {
-  jsearch: 'Job boards',
-  linkedin: 'LinkedIn',
   adzuna: 'Adzuna',
   mock: 'Sample data',
 };
@@ -10,8 +8,8 @@ const SOURCE_LABELS: Record<string, string> = {
 export function runUsesSampleData(sources: Record<string, number> | null | undefined): boolean {
   if (!sources) return false;
   return Object.entries(sources).some(
-    ([source, count]) => count > 0 && (source === 'mock' || source === 'jsearch' || source === 'linkedin'),
-  ) && !sources.adzuna;
+    ([source, count]) => count > 0 && (source === 'mock' || source === 'sample'),
+  );
 }
 
 export function formatSourceLabel(source: string): string {

@@ -8,8 +8,6 @@ export interface EnginePayload {
   location: string;
   min_score?: number;
   min_raw_jobs?: number;
-  linkedin_primary_path?: string;
-  linkedin_widen_path?: string;
   remote_only?: boolean;
   employment_types?: string[];
   search_focus?: string;

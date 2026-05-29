@@ -18,7 +18,7 @@ Production URL (current): **https://rapidai-velomails-projects.vercel.app**
 | Vercel (hosting) | Yes | Yes |
 | `ENGINE_MODE=mock` | Recommended | Recommended for pitches |
 | Resend + verified domain | No | Yes (any-user magic links) |
-| RapidAPI (JSearch + LinkedIn) | No | Only in **live** engine mode |
+| Adzuna job API | No | Only in **live** engine mode |
 | OpenAI | No | Only in **live** engine mode |
 
 ---
@@ -186,29 +186,22 @@ Full checklist: [AUTH_EMAIL_SETUP.md](AUTH_EMAIL_SETUP.md)
 
 ---
 
-## 5. Job APIs — RapidAPI (live mode only)
+## 5. Job API — Adzuna (live mode only)
 
 Skip entirely while `ENGINE_MODE=mock`.
 
-### JSearch (30+ job boards)
-
-1. [JSearch on RapidAPI](https://rapidapi.com/letscrape-6bRBa3QguO5/api/jsearch) → Subscribe → copy API key.
-
-### LinkedIn jobs (optional)
-
-1. [LinkedIn Job Search API](https://rapidapi.com/fantastic-jobs-fantastic-jobs-default/api/linkedin-job-search-api) — often same key.
+1. [developer.adzuna.com](https://developer.adzuna.com/) → register → create app → copy **App ID** and **App Key**.
+2. Set country code (`ca`, `us`, `gb`, …) to match where users search.
 
 ### Env vars
 
 ```env
-RAPIDAPI_KEY=
-LINKEDIN_RAPIDAPI_HOST=linkedin-job-search-api.p.rapidapi.com
-LINKEDIN_RAPIDAPI_KEY=          # usually same as RAPIDAPI_KEY
-LINKEDIN_PRIMARY_PATH=/active-jb-24h
-LINKEDIN_WIDEN_PATH=/active-jb-7d
-LINKEDIN_QUERY_PARAM=title_filter
-LINKEDIN_LOCATION_PARAM=location_filter
+ADZUNA_APP_ID=
+ADZUNA_APP_KEY=
+ADZUNA_COUNTRY=ca
 ```
+
+Optional tuning: `ADZUNA_MAX_PRIMARY_QUERIES`, `ADZUNA_FETCH_DELAY_MS`, `ADZUNA_MAX_RETRIES`.
 
 Watch for **429 rate limits** on free tiers. Mock mode avoids this during demos.
 
@@ -258,7 +251,7 @@ npm run saas:engine:live
 npm run saas:deploy:only
 ```
 
-This removes `ENGINE_MODE=mock` from Vercel. The app then calls RapidAPI + OpenAI + Resend on each run.
+This removes `ENGINE_MODE=mock` from Vercel. The app then calls Adzuna + OpenAI + Resend on each run.
 
 ---
 

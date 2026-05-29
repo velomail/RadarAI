@@ -6,7 +6,7 @@ The app runs entirely in Next.js. No Docker, no n8n, no VPS.
 
 - Node.js 20+
 - A Supabase project with all files in `db/migrations/` applied (see `PROVISIONING.md` §1)
-- OpenAI + RapidAPI keys (same ones as the personal funnel)
+- Adzuna + OpenAI keys for live mode (mock mode needs neither)
 
 ## Setup
 
@@ -27,14 +27,14 @@ ENGINE_MODE=mock
 
 | Service | Live mode | Mock mode |
 |---------|-----------|-----------|
-| JSearch / LinkedIn (RapidAPI) | Real job boards | ~20 synthetic jobs per run |
+| Adzuna | Real job listings | ~20 synthetic jobs per run |
 | OpenAI scoring | gpt-4o-mini | Keyword-overlap heuristic |
 | Query inference (`auto` focus) | OpenAI | First resume line + fallbacks |
 | Resend email | Sends email | Logs to terminal only |
 
 Supabase (auth, DB, storage) is still required — only the **job search + AI + email send** stack is mocked.
 
-Runs complete in a few seconds with no API keys for RapidAPI or OpenAI. Good for UI testing, demos, and MVP walkthroughs.
+Runs complete in a few seconds with no API keys for Adzuna or OpenAI. Good for UI testing, demos, and MVP walkthroughs.
 
 Minimum variables in `web/.env.local`:
 
@@ -44,9 +44,9 @@ Minimum variables in `web/.env.local`:
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | same |
 | `SUPABASE_SERVICE_ROLE_KEY` | server-only |
 | `NEXT_PUBLIC_APP_URL` | `http://localhost:3000` |
-| `RAPIDAPI_KEY` | JSearch |
-| `LINKEDIN_RAPIDAPI_KEY` | Bebity (often same key) |
-| `OPENAI_API_KEY` | gpt-4o-mini scoring |
+| `ADZUNA_APP_ID` / `ADZUNA_APP_KEY` | Live job fetch (skip in mock) |
+| `ADZUNA_COUNTRY` | e.g. `ca` |
+| `OPENAI_API_KEY` | gpt-4o-mini scoring (skip in mock) |
 
 Optional: `RESEND_API_KEY`, `TELEGRAM_BOT_TOKEN`, `CRON_SECRET`.
 
@@ -73,11 +73,11 @@ curl -H "Authorization: Bearer <CRON_SECRET>" http://localhost:3000/api/cron/rad
 |---|---|
 | Blank page / **500** / `Cannot find module './611.js'` | You ran **`next build`** then **`next dev`** (or OneDrive corrupted `.next`). Stop dev, run `npm run saas:clean`, then `npm run saas:dev`. Never run `npm run saas:build` while dev is running. In OneDrive: **exclude `web\.next` from sync** or move the repo to e.g. `C:\dev\radarai`. |
 | Run stays `pending` | Check the terminal running `npm run dev` for `runEngine failed:` |
-| `Missing RAPIDAPI_KEY` | Add to `web/.env.local`, restart dev server |
+| `Missing ADZUNA_APP_ID` | Add Adzuna keys to `web/.env.local`, or set `ENGINE_MODE=mock` |
 | PDF upload fails | Supabase `resumes` bucket must exist; migrations applied |
 | OpenAI 429 | Lower `OPENAI_SCORE_CONCURRENCY=4` in `.env.local` |
 | No email after run | See **Run-complete email** below |
-| **HTTP 429** / RapidAPI rate limit | Wait 1–2 min and retry. Defaults: 3 queries max, 1.2s between API calls. Raise limits only on a paid RapidAPI plan. |
+| **HTTP 429** / Adzuna rate limit | Wait 1–2 min and retry. Lower `ADZUNA_MAX_PRIMARY_QUERIES` or raise `ADZUNA_FETCH_DELAY_MS`. |
 
 ## Run-complete email
 

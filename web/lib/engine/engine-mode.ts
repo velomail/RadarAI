@@ -1,4 +1,4 @@
-/** When true, the pipeline uses in-house fixtures instead of RapidAPI / OpenAI. */
+/** When true, the pipeline uses in-house fixtures instead of Adzuna / OpenAI. */
 export function isMockEngine(): boolean {
   return process.env.ENGINE_MODE === 'mock';
 }

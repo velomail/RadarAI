@@ -21,7 +21,7 @@ export default function LandingPage() {
       <section className="relative mx-auto max-w-6xl px-6 pb-20 pt-32 text-center">
         <div className="glass-subtle mb-8 inline-flex items-center gap-2 rounded-full px-4 py-2">
           <span className="text-xs font-medium tracking-wide text-muted-foreground">
-            On-demand · Multi-source search · Resume-aware AI
+            On-demand · Adzuna job search · Resume-aware AI
           </span>
         </div>
         <h1 className="mx-auto max-w-4xl text-balance text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">

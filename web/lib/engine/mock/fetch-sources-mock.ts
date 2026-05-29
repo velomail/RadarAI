@@ -41,13 +41,8 @@ function companySlug(name: string): string {
   return name.toLowerCase().replace(/[^a-z0-9]+/g, '');
 }
 
-function makeJob(
-  query: string,
-  location: string,
-  source: 'jsearch' | 'linkedin',
-  index: number,
-): RawJob {
-  const company = pick(COMPANIES, `${query}:${index}:${source}`);
+function makeJob(query: string, location: string, index: number): RawJob {
+  const company = pick(COMPANIES, `${query}:${index}`);
   const title = titleVariants(query, index);
   const template = pick(DESCRIPTION_TEMPLATES, `${company}:${title}`);
   const description = template
@@ -55,7 +50,7 @@ function makeJob(
     .replace('{title}', title)
     .replace('{location}', location);
   const remote = index % 3 === 0;
-  const id = `mock-${source}-${hash(`${query}-${index}`)}`;
+  const id = `mock-adzuna-${hash(`${query}-${index}`)}`;
   const applyUrl = `https://careers.${companySlug(company)}.com/jobs/${id}`;
 
   return {
@@ -64,7 +59,7 @@ function makeJob(
     employer_name: company,
     job_apply_link: applyUrl,
     job_description: description,
-    job_publisher: source === 'linkedin' ? 'LinkedIn' : 'Indeed',
+    job_publisher: 'Adzuna (mock)',
     job_location: remote ? `Remote · ${location}` : location,
     job_city: location.split(',')[0] || location,
     job_country: 'CA',
@@ -73,8 +68,7 @@ function makeJob(
     job_employment_type: index % 4 === 0 ? 'PARTTIME' : 'FULLTIME',
     direct_ats: index % 5 === 0,
     external_apply_url: index % 5 === 0 ? applyUrl : '',
-    linkedin_url: source === 'linkedin' ? applyUrl : '',
-    source,
+    source: 'mock',
     _matched_query: query,
   };
 }
@@ -86,22 +80,21 @@ export function fetchSourcesMock(payload: EnginePayload): FetchResult {
   const raw_counts: FetchResult['raw_counts'] = [];
 
   for (const q of queries) {
-    const jsearchJobs = Array.from({ length: 4 }, (_, i) => makeJob(q, location, 'jsearch', i));
-    const linkedinJobs = Array.from({ length: 3 }, (_, i) => makeJob(q, location, 'linkedin', i + 10));
-    jobs.push(...jsearchJobs, ...linkedinJobs);
-    raw_counts.push(
-      { source: 'jsearch', query: q, ok: true, skipped: false, count: jsearchJobs.length, message: 'mock' },
-      { source: 'linkedin', query: q, ok: true, skipped: false, count: linkedinJobs.length, message: 'mock' },
-    );
+    const batch = Array.from({ length: 7 }, (_, i) => makeJob(q, location, i));
+    jobs.push(...batch);
+    raw_counts.push({
+      source: 'mock',
+      query: q,
+      ok: true,
+      skipped: false,
+      count: batch.length,
+      message: 'mock',
+    });
   }
 
-  const sources_breakdown = jobs.reduce<Record<string, number>>((acc, j) => {
-    const k = j.source || 'mock';
-    acc[k] = (acc[k] || 0) + 1;
-    return acc;
-  }, {});
+  const sources_breakdown = { mock: jobs.length };
 
-  console.info('[mock engine] Generated', jobs.length, 'fixture jobs for queries:', queries.join(', '));
+  console.info('[mock engine] Generated', jobs.length, 'fixture jobs (Adzuna-shaped) for:', queries.join(', '));
 
   return {
     data: jobs,

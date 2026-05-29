@@ -13,6 +13,5 @@ function scoreJob(job: CleanJob): number {
     if (!Number.isNaN(age) && age < 3 * 24 * 60 * 60 * 1000) s -= 20;
   }
   if (job.description_clean.length >= 200) s -= 10;
-  if (job.source === 'linkedin') s -= 5;
   return s;
 }

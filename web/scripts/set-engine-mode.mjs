@@ -1,7 +1,7 @@
 /**
  * Set ENGINE_MODE on Vercel production.
  * Usage: node scripts/set-engine-mode.mjs mock|live
- *   mock → ENGINE_MODE=mock (fixture jobs, no RapidAPI/OpenAI)
+ *   mock → ENGINE_MODE=mock (fixture jobs, no Adzuna/OpenAI)
  *   live → remove ENGINE_MODE (real APIs)
  */
 
@@ -34,5 +34,5 @@ if (mode === 'mock') {
   console.log('Removing ENGINE_MODE from Vercel production (live / real APIs)…');
   vercel(['env', 'rm', 'ENGINE_MODE', 'production', '--yes']);
   console.log('\nDone. Redeploy for it to take effect:  npm run saas:deploy:only');
-  console.log('Ensure RAPIDAPI_KEY and OPENAI_API_KEY are set — see docs/ENGINE_MODE.md');
+  console.log('Ensure ADZUNA_APP_ID, ADZUNA_APP_KEY, and OPENAI_API_KEY are set — see docs/ENGINE_MODE.md');
 }

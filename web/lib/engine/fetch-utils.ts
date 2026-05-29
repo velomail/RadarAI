@@ -1,4 +1,4 @@
-/** Shared rate-limit helpers for RapidAPI (JSearch + LinkedIn). */
+/** Shared helpers for serial job API fetches (Adzuna live engine). */
 
 export function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -19,7 +19,6 @@ export function capUniqueQueries(queries: string[], max: number): string[] {
   return out;
 }
 
-/** Widen queries that are not already in the primary set. */
 export function widenExtras(primary: string[], widen: string[], max: number): string[] {
   const primaryKeys = new Set(primary.map((q) => q.toLowerCase()));
   return capUniqueQueries(
@@ -36,8 +35,8 @@ export async function withRateLimitRetry<T extends { ok: boolean; message?: stri
   label: string,
   fn: () => Promise<T>,
 ): Promise<T> {
-  const maxRetries = Number(process.env.RAPIDAPI_MAX_RETRIES || 3);
-  const baseDelayMs = Number(process.env.RAPIDAPI_RETRY_BASE_MS || 2500);
+  const maxRetries = Number(process.env.ADZUNA_MAX_RETRIES || 3);
+  const baseDelayMs = Number(process.env.ADZUNA_RETRY_BASE_MS || 2500);
   let last: T | null = null;
 
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
@@ -45,7 +44,7 @@ export async function withRateLimitRetry<T extends { ok: boolean; message?: stri
     if (last.ok || !isRateLimitMessage(last.message)) return last;
     if (attempt < maxRetries) {
       const wait = baseDelayMs * 2 ** attempt;
-      console.warn(`RapidAPI 429 (${label}) — retry ${attempt + 1}/${maxRetries} in ${wait}ms`);
+      console.warn(`Adzuna 429 (${label}) — retry ${attempt + 1}/${maxRetries} in ${wait}ms`);
       await sleep(wait);
     }
   }

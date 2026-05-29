@@ -12,7 +12,7 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: `${APP_NAME} — ${APP_TAGLINE}`,
   description:
-    'Upload your resume, run a targeted search across LinkedIn and 30+ boards, and get scored matches with role summaries and experience comparisons.',
+    'Upload your resume, run a targeted Adzuna job search, and get scored matches with role summaries and experience comparisons.',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
