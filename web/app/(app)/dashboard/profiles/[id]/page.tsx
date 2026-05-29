@@ -6,5 +6,5 @@ interface PageProps {
 
 export default async function LegacyProfileRedirect({ params }: PageProps) {
   const { id } = await params;
-  redirect(`/dashboard/searches/${id}`);
+  redirect('/dashboard');
 }

@@ -42,7 +42,7 @@ export function RunNowButton({
               return;
             }
             const { run_id } = await res.json();
-            router.replace(`/dashboard/searches/${profileId}?run=${run_id}`);
+            router.replace(`/dashboard?run=${run_id}`);
           })
         }
       >

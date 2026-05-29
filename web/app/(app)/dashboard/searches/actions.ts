@@ -73,12 +73,12 @@ export async function runJobSearch(profileId: string, formData: FormData) {
 
   const resumeText: string = profile.resume?.parsed_text || '';
   if (!resumeText || resumeText.length < 100) {
-    redirect('/dashboard/searches?error=resume_missing');
+    redirect('/dashboard?error=resume_missing');
   }
 
   const quota = await consumeDailyQuery(user.id);
   if (!quota.allowed) {
-    redirect('/dashboard/searches?error=daily_limit');
+    redirect('/dashboard?error=daily_limit');
   }
 
   const { data: run, error: runErr } = await sb
@@ -109,6 +109,5 @@ export async function runJobSearch(profileId: string, formData: FormData) {
   });
 
   revalidatePath('/dashboard');
-  revalidatePath('/dashboard/searches');
-  redirect(`/dashboard/searches?run=${run.id}`);
+  redirect(`/dashboard?run=${run.id}`);
 }

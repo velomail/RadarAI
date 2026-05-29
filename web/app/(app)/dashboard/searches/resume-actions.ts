@@ -28,5 +28,5 @@ export async function updateAccountResume(formData: FormData) {
     .eq('user_id', user.id);
 
   revalidatePath('/dashboard');
-  revalidatePath('/dashboard/searches');
+  revalidatePath('/dashboard');
 }

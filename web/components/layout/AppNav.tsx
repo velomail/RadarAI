@@ -5,11 +5,13 @@ import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 
 const links = [
-  { href: '/dashboard', label: 'Home', match: (p: string) => p === '/dashboard' },
   {
-    href: '/dashboard/searches',
-    label: 'Searches',
-    match: (p: string) => p.startsWith('/dashboard/searches') || p.startsWith('/dashboard/runs'),
+    href: '/dashboard',
+    label: 'Search',
+    match: (p: string) =>
+      p === '/dashboard' ||
+      p.startsWith('/dashboard/searches') ||
+      p.startsWith('/dashboard/runs'),
   },
   { href: '/dashboard/settings', label: 'Settings', match: (p: string) => p === '/dashboard/settings' },
 ] as const;

@@ -65,8 +65,8 @@ export async function updateProfile(profileId: string, formData: FormData) {
   if (error) throw new Error(error.message);
 
   revalidatePath('/dashboard');
-  revalidatePath('/dashboard/searches');
-  redirect('/dashboard/searches');
+  revalidatePath('/dashboard');
+  redirect('/dashboard');
 }
 
 export async function deleteProfile(profileId: string) {
@@ -80,6 +80,6 @@ export async function deleteProfile(profileId: string) {
   if (!existing || existing.user_id !== user.id) throw new Error('Profile not found.');
   await sb.from('search_profiles').delete().eq('id', profileId);
   revalidatePath('/dashboard');
-  revalidatePath('/dashboard/searches');
-  redirect('/dashboard/searches');
+  revalidatePath('/dashboard');
+  redirect('/dashboard');
 }

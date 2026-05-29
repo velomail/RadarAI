@@ -49,7 +49,7 @@ export default async function SignUpPage({ searchParams }: PageProps) {
               );
             })() : null}
 
-            <OAuthButtons redirectTo="/dashboard/searches" />
+            <OAuthButtons redirectTo="/dashboard" />
           </div>
           <p className="mt-6 text-center text-sm text-muted-foreground">
             Already signed up?{' '}

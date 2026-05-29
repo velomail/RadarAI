@@ -43,7 +43,7 @@ export async function createSearchProfile(formData: FormData) {
   try {
     resumeId = await resolveResumeIdFromForm(sb, user.id, formData);
   } catch {
-  redirect('/dashboard/searches?error=resume_missing');
+  redirect('/dashboard?error=resume_missing');
   }
 
   const { error } = await sb.from('search_profiles').insert({
@@ -63,6 +63,6 @@ export async function createSearchProfile(formData: FormData) {
   if (error) throw new Error(error.message);
 
   revalidatePath('/dashboard');
-  revalidatePath('/dashboard/searches');
-  redirect('/dashboard/searches');
+  revalidatePath('/dashboard');
+  redirect('/dashboard');
 }

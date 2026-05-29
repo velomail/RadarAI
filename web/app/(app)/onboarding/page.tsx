@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
 
 export default function OnboardingRedirect() {
-  redirect('/dashboard/searches');
+  redirect('/dashboard');
 }

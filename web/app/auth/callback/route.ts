@@ -22,7 +22,7 @@ async function resolvePostAuthPath(userId: string, next: string): Promise<string
     .select('id', { count: 'exact', head: true })
     .eq('user_id', userId);
 
-  if (!count || count === 0) return '/dashboard/searches';
+  if (!count || count === 0) return '/dashboard';
   return next;
 }
 
