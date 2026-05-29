@@ -86,7 +86,7 @@ export function JobSearchCard({ profile, resumeFilename, dailyUsage, error }: Pr
 
       <div className="flex justify-center border-t border-border/50 pt-4">
         <Link
-          href={`/dashboard/searches/${profile.id}/edit`}
+          href={`/dashboard/settings/search`}
           className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
         >
           <Settings2 className="h-3.5 w-3.5" />

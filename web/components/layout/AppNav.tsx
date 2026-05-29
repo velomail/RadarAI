@@ -9,11 +9,9 @@ const links = [
     href: '/dashboard',
     label: 'Search',
     match: (p: string) =>
-      p === '/dashboard' ||
-      p.startsWith('/dashboard/searches') ||
-      p.startsWith('/dashboard/runs'),
+      p === '/dashboard' || p.startsWith('/dashboard/runs'),
   },
-  { href: '/dashboard/settings', label: 'Settings', match: (p: string) => p === '/dashboard/settings' },
+  { href: '/dashboard/settings', label: 'Settings', match: (p: string) => p.startsWith('/dashboard/settings') },
 ] as const;
 
 export function AppNav() {

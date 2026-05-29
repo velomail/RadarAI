@@ -20,7 +20,7 @@ export function DashboardPage({
   children,
 }: Props) {
   return (
-    <div className="mx-auto flex w-full max-w-3xl flex-col gap-8">
+    <div className="mx-auto flex w-full max-w-xl flex-col gap-8">
       {backHref ? (
         <Link href={backHref} className="text-sm text-muted-foreground hover:text-foreground">
           ← {backLabel}

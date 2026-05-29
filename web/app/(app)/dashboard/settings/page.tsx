@@ -24,7 +24,7 @@ export default async function SettingsPage() {
     .maybeSingle();
 
   return (
-    <section className="mx-auto flex max-w-2xl flex-col gap-10">
+    <section className="mx-auto flex w-full max-w-2xl flex-col gap-10">
       <header>
         <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
         <p className="mt-1 text-muted-foreground">Account, notifications, and data privacy.</p>

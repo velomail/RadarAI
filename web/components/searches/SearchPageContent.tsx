@@ -49,10 +49,11 @@ export async function SearchPageContent({ searchParams }: { searchParams: Search
   const dailyUsage = await getDailyUsage(user.id);
   const tier = await getUserPlan(user.id);
   const recentRuns = (runs as Run[]) ?? [];
+  const pastRuns = recentRuns.filter((r) => r.status === 'success' || r.status === 'error');
 
   if (!profile) {
     return (
-      <div className="mx-auto flex w-full max-w-lg flex-col items-center px-2">
+      <div className="mx-auto flex w-full max-w-xl flex-col items-center px-2">
         <header className="mb-8 w-full text-center">
           <div className="mb-3 inline-flex items-center gap-2 rounded-full glass-subtle px-4 py-2">
             <Search className="h-4 w-4 text-primary" />
@@ -82,7 +83,7 @@ export async function SearchPageContent({ searchParams }: { searchParams: Search
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-lg flex-col items-center px-2">
+    <div className="mx-auto flex w-full max-w-xl flex-col items-center px-2">
       <header className="mb-8 w-full text-center">
         <div className="mb-3 inline-flex items-center gap-2 rounded-full glass-subtle px-4 py-2">
           <Search className="h-4 w-4 text-primary" />
@@ -109,11 +110,11 @@ export async function SearchPageContent({ searchParams }: { searchParams: Search
         </div>
       ) : null}
 
-      {recentRuns.length > 0 && !runId ? (
+      {pastRuns.length > 0 && !runId ? (
         <section className="mt-10 w-full">
-          <h2 className="mb-3 text-center text-sm font-semibold text-muted-foreground">Recent searches</h2>
+          <h2 className="mb-3 text-center text-sm font-semibold text-muted-foreground">Past runs</h2>
           <div className="overflow-hidden rounded-2xl border border-border/60 bg-white/75">
-            {recentRuns.map((run) => (
+            {pastRuns.map((run) => (
               <Link
                 key={run.id}
                 href={`/dashboard?run=${run.id}`}
