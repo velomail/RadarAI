@@ -4,7 +4,7 @@
   "private": true,
   "repository": {
     "type": "git",
-    "url": "https://github.com/jesse03hiles/RadarAI.git"
+    "url": "https://github.com/velomail/RadarAI.git"
   },
   "type": "module",
   "scripts": {
