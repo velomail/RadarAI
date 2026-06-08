@@ -1,99 +1,105 @@
 import Link from 'next/link';
-import { ArrowRight, FileText, Users, Zap } from 'lucide-react';
-import type { ComponentType, SVGProps } from 'react';
 import { AuthHashRedirect } from '@/components/auth/AuthHashRedirect';
 import { MarketingHeader } from '@/components/layout/MarketingHeader';
-import { DataTrustNotice } from '@/components/trust/DataTrustNotice';
 import { SiteFooter } from '@/components/layout/SiteFooter';
 import { APP_NAME } from '@/lib/brand';
+import { TRY_PAGE } from '@/lib/constants';
+import { FREE_DAILY_QUERY_LIMIT } from '@/lib/usage/constants';
 import { Button } from '@/components/ui/button';
+
+const STEPS = [
+  {
+    n: '01',
+    label: 'Upload resume',
+    body: 'Add your PDF once. We read it to understand your experience and target roles.',
+  },
+  {
+    n: '02',
+    label: 'Set your search',
+    body: 'Choose focus, keywords, and location. Run a scan whenever you are actively looking.',
+  },
+  {
+    n: '03',
+    label: 'Review matches',
+    body: 'Get ranked listings with plain-English summaries and honest fit comparisons.',
+  },
+] as const;
 
 export default function LandingPage() {
   return (
-    <main className="gradient-mesh min-h-screen flex flex-col">
+    <main className="flex min-h-dvh flex-col bg-background">
       <AuthHashRedirect />
       <MarketingHeader />
-      <div className="pointer-events-none fixed inset-0 overflow-hidden">
-        <div className="animate-float absolute -left-32 top-1/4 h-96 w-96 rounded-full bg-primary/10 blur-3xl" />
-        <div className="animate-float-delayed absolute -right-32 bottom-1/4 h-80 w-80 rounded-full bg-primary/5 blur-3xl" />
-      </div>
 
-      <section className="relative mx-auto max-w-6xl px-6 pb-20 pt-32 text-center">
-        <div className="glass-subtle mb-8 inline-flex items-center gap-2 rounded-full px-4 py-2">
-          <span className="text-xs font-medium tracking-wide text-muted-foreground">
-            On-demand · Adzuna job search · Resume-aware AI
-          </span>
-        </div>
-        <h1 className="mx-auto max-w-4xl text-balance text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
-          Find roles that fit your experience — when you&apos;re ready to search
-        </h1>
-        <p className="mx-auto mt-6 max-w-2xl text-pretty text-lg leading-relaxed text-muted-foreground sm:text-xl">
-          {APP_NAME} is a resume-aware job search utility with plain-English role summaries and
-          honest experience comparison for every match.
-        </p>
-        <div className="mb-6 mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
-          <Link href="/sign-up">
-            <Button size="lg" className="group h-12 rounded-xl px-8 text-base">
-              Create free account
-              <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-            </Button>
-          </Link>
-          <Link href="/sign-in">
-            <Button size="lg" variant="outline" className="glass h-12 rounded-xl px-8 text-base">
+      <div
+        className="flex flex-1 flex-col justify-center py-10 sm:py-12 lg:py-16"
+        style={{ paddingTop: 'calc(4rem + 2rem + env(safe-area-inset-top, 0px))' }}
+      >
+        <section className="page-container content-well-wide">
+          <p className="text-base font-medium text-muted-foreground lg:text-lg">
+            Resume-aware job search
+          </p>
+          <h1 className="mt-4 max-w-5xl text-balance text-5xl font-bold leading-[1.05] tracking-tight sm:text-6xl lg:mt-5 lg:text-7xl xl:text-[5rem]">
+            Find roles that fit your experience.
+          </h1>
+          <p className="mt-5 max-w-3xl text-pretty text-lg leading-relaxed text-muted-foreground lg:mt-6 lg:text-xl lg:leading-relaxed">
+            {APP_NAME} ranks listings against your resume — with role summaries and honest fit
+            comparisons for every match.
+          </p>
+          <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center lg:mt-10">
+            <Link href={TRY_PAGE}>
+              <Button size="lg" className="h-12 w-full px-8 text-base sm:w-auto">
+                Get started
+              </Button>
+            </Link>
+            <Link
+              href="/sign-in"
+              className="text-center text-base font-medium text-muted-foreground hover:text-foreground sm:px-3 sm:text-left"
+            >
               Sign in
-            </Button>
-          </Link>
-        </div>
-        <p className="text-sm text-muted-foreground">
-          Free plan includes 3 AI-powered searches per day. Pro digests — coming soon.
-        </p>
-      </section>
+            </Link>
+          </div>
+        </section>
 
-      <section className="relative mx-auto w-full max-w-2xl px-6 pb-12">
-        <DataTrustNotice />
-      </section>
+        <section className="mt-14 border-t border-border lg:mt-16">
+          <div className="page-container py-12 lg:py-14">
+            <div className="grid gap-12 sm:grid-cols-3 lg:gap-0 lg:divide-x lg:divide-border">
+              {STEPS.map((step) => (
+                <div key={step.n} className="lg:px-10 lg:first:pl-0 lg:last:pr-0 xl:px-12">
+                  <p className="text-sm font-medium tabular-nums text-muted-foreground lg:text-base">
+                    {step.n}
+                  </p>
+                  <h2 className="mt-3 text-xl font-semibold tracking-tight lg:text-2xl">
+                    {step.label}
+                  </h2>
+                  <p className="mt-3 text-base leading-relaxed text-muted-foreground lg:text-lg lg:leading-relaxed">
+                    {step.body}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
 
-      <section className="relative mx-auto max-w-6xl px-6 pb-24">
-        <div className="grid gap-6 md:grid-cols-3">
-          <FeatureCard
-            icon={FileText}
-            title="Role summary"
-            body="Each listing starts with a clear description of what you'd actually do — not just a raw job board dump."
-          />
-          <FeatureCard
-            icon={Users}
-            title="Experience comparison"
-            body="See how your resume maps to the posting: strengths called out honestly, gaps flagged before you apply."
-          />
-          <FeatureCard
-            icon={Zap}
-            title="Search when you want"
-            body="No background cron on the free tier — run a scan from your dashboard whenever you're actively looking. Scheduled email newsletters are Pro (coming soon)."
-          />
-        </div>
-      </section>
+        <section className="border-t border-border bg-muted/20">
+          <div className="page-container flex flex-col gap-8 py-12 sm:flex-row sm:items-center sm:justify-between lg:py-14">
+            <div className="max-w-2xl">
+              <h2 className="text-3xl font-bold tracking-tight lg:text-4xl">Ready when you are.</h2>
+              <p className="mt-3 text-base text-muted-foreground lg:text-lg">
+                {FREE_DAILY_QUERY_LIMIT} searches per day on the free plan. No subscription required
+              to start.
+              </p>
+            </div>
+            <Link href="/sign-up" className="shrink-0">
+              <Button size="lg" className="h-12 w-full px-8 text-base sm:w-auto">
+                Create free account
+              </Button>
+            </Link>
+          </div>
+        </section>
+      </div>
 
       <SiteFooter />
     </main>
-  );
-}
-
-function FeatureCard({
-  icon: Icon,
-  title,
-  body,
-}: {
-  icon: ComponentType<SVGProps<SVGSVGElement>>;
-  title: string;
-  body: string;
-}) {
-  return (
-    <div className="glass group rounded-2xl p-6 transition-all duration-300 hover:bg-card/80">
-      <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary transition-colors group-hover:bg-primary/15">
-        <Icon className="h-6 w-6" />
-      </div>
-      <h3 className="text-lg font-semibold tracking-tight">{title}</h3>
-      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{body}</p>
-    </div>
   );
 }

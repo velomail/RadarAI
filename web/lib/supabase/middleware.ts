@@ -31,6 +31,13 @@ export async function updateSession(request: NextRequest) {
 
   const isAuthedRoute = pathname.startsWith('/dashboard') || pathname.startsWith('/onboarding');
   const isAuthRoute = pathname.startsWith('/sign-in') || pathname.startsWith('/sign-up');
+  const isGuestTryRoute = pathname === '/try' || pathname.startsWith('/try/');
+
+  if (isGuestTryRoute && user) {
+    const url = request.nextUrl.clone();
+    url.pathname = '/dashboard/searches';
+    return NextResponse.redirect(url);
+  }
 
   if (isAuthedRoute && !user) {
     const url = request.nextUrl.clone();

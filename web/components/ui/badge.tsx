@@ -4,13 +4,13 @@ import { cn } from '@/lib/utils';
 type Variant = 'default' | 'fresh' | 'warm' | 'recent' | 'stale' | 'success' | 'muted';
 
 const variants: Record<Variant, string> = {
-  default: 'bg-primary text-primary-foreground',
-  fresh: 'bg-[hsl(var(--danger))] text-white',
-  warm: 'bg-[hsl(var(--warning))] text-white',
-  recent: 'bg-muted text-muted-foreground',
-  stale: 'bg-muted text-muted-foreground',
-  success: 'bg-[hsl(var(--success))] text-white',
-  muted: 'bg-muted text-muted-foreground',
+  default: 'border border-border bg-muted text-foreground',
+  fresh: 'border border-border bg-muted text-foreground',
+  warm: 'border border-border bg-muted text-foreground',
+  recent: 'border border-border bg-muted text-muted-foreground',
+  stale: 'border border-border bg-muted text-muted-foreground',
+  success: 'border border-border bg-muted text-foreground',
+  muted: 'border border-border bg-muted text-muted-foreground',
 };
 
 export function Badge({

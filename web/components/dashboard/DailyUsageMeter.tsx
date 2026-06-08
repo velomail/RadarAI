@@ -1,10 +1,10 @@
-import { CalendarDays } from 'lucide-react';
 import { FREE_DAILY_QUERY_LIMIT } from '@/lib/usage/constants';
+import type { UserPlan } from '@/lib/plan';
 
 type DailyUsageMeterProps = {
   queriesToday: number;
   limit: number;
-  plan: 'free' | 'pro';
+  plan: UserPlan;
   compact?: boolean;
 };
 
@@ -15,22 +15,19 @@ export function DailyUsageMeter({ queriesToday, limit, plan, compact }: DailyUsa
 
   return (
     <div className={compact ? 'space-y-2' : 'mt-5'}>
-      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-        <CalendarDays className="h-4 w-4 shrink-0" />
-        <span>
-          Today&apos;s searches:{' '}
-          <span className="font-semibold text-foreground">
-            {plan === 'pro' ? 'Unlimited' : `${queriesToday}/${dailyCap}`}
-          </span>
-          {plan === 'free' ? (
-            <span className="text-muted-foreground"> (resets midnight UTC)</span>
-          ) : null}
+      <p className="text-sm text-muted-foreground">
+        Today&apos;s searches:{' '}
+        <span className="font-medium text-foreground">
+          {plan === 'pro' ? 'Unlimited' : `${queriesToday}/${dailyCap}`}
         </span>
-      </div>
+        {plan === 'free' ? (
+          <span className="text-muted-foreground"> · resets midnight UTC</span>
+        ) : null}
+      </p>
       {plan === 'free' ? (
-        <div className={`${compact ? 'mt-2' : 'mt-3'} h-2 w-full overflow-hidden rounded-full bg-muted`}>
+        <div className={`${compact ? 'mt-2' : 'mt-3'} h-1 w-full overflow-hidden bg-muted`}>
           <div
-            className="h-full rounded-full bg-primary transition-all"
+            className="h-full bg-foreground transition-all"
             style={{ width: `${dailyPct}%` }}
           />
         </div>

@@ -5,10 +5,12 @@ import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { runEngine } from '@/lib/engine';
-import { MANUAL_SCHEDULE_CRON, SEARCH_PAGE } from '@/lib/constants';
+import { SEARCH_PAGE } from '@/lib/constants';
 import { parseQueriesFromForm, parseSearchFocus } from '@/lib/parse-search-form';
+import { resolveScheduleCron } from '@/lib/schedule-cron';
 import { supabaseServer, supabaseServiceRole } from '@/lib/supabase/server';
 import { consumeDailyQuery } from '@/lib/usage/consume-daily-query';
+import { AUTH_MAX_REPORT_JOBS, AUTH_MIN_REPORT_JOBS } from '@/lib/usage/constants';
 
 const Schema = z.object({
   name: z.string().min(1).max(120),
@@ -70,6 +72,8 @@ export async function startProfileSearchRun(profileId: string, userId: string): 
       remote_only: !!profile.remote_only,
       employment_types: profile.employment_types || [],
       search_focus: profile.search_focus || 'auto',
+      max_report_jobs: AUTH_MAX_REPORT_JOBS,
+      min_report_jobs: AUTH_MIN_REPORT_JOBS,
     });
   });
 
@@ -87,9 +91,11 @@ export async function runJobSearch(profileId: string, formData: FormData) {
     location: formData.get('location')?.toString() ?? '',
     remote_only: formData.get('remote_only')?.toString(),
     min_score: formData.get('min_score')?.toString() ?? '70',
-    schedule_cron: formData.get('schedule_cron')?.toString() || MANUAL_SCHEDULE_CRON,
+    schedule_cron: formData.get('schedule_cron')?.toString(),
     notify_email: formData.get('notify_email')?.toString()?.trim() || '',
   });
+
+  const scheduleCron = await resolveScheduleCron(user.id, parsed.schedule_cron);
 
   const sb = supabaseServiceRole();
   const { data: existing } = await sb
@@ -108,7 +114,7 @@ export async function runJobSearch(profileId: string, formData: FormData) {
       location: parsed.location,
       remote_only: !!parsed.remote_only,
       min_score: parsed.min_score,
-      schedule_cron: parsed.schedule_cron || MANUAL_SCHEDULE_CRON,
+      schedule_cron: scheduleCron,
       notify_email: parsed.notify_email || null,
     })
     .eq('id', profileId);

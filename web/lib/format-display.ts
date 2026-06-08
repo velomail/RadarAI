@@ -1,7 +1,7 @@
 /** Display helpers shared by job results UI (mock + live). */
 
 const SOURCE_LABELS: Record<string, string> = {
-  adzuna: 'Adzuna',
+  adzuna: 'Partner listings',
   mock: 'Sample data',
   jsearch: 'Legacy sample',
   linkedin: 'Legacy sample',
@@ -51,6 +51,17 @@ export function runUsesSampleData(sources: Record<string, number> | null | undef
 
 export function formatSourceLabel(source: string): string {
   return SOURCE_LABELS[source.toLowerCase()] ?? source;
+}
+
+/** Strip partner-network branding from publisher lines shown in job cards. */
+export function formatJobPublisher(publisher: string | null | undefined): string | null {
+  if (!publisher?.trim()) return null;
+  const cleaned = publisher
+    .replace(/^adzuna\s*(·\s*)?/i, '')
+    .replace(/\s*·\s*adzuna$/i, '')
+    .replace(/^adzuna$/i, '')
+    .trim();
+  return cleaned || null;
 }
 
 /** Hide internal / demo flags from investor-facing UI. */

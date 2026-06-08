@@ -1,12 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { verifyCronAuth } from '@/lib/cron-auth';
 import { supabaseServiceRole } from '@/lib/supabase/server';
 
 export async function GET(req: NextRequest) {
-  const authHeader = req.headers.get('authorization');
-  const secret = process.env.CRON_SECRET;
-  if (secret && authHeader !== `Bearer ${secret}`) {
-    return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
-  }
+  const authError = verifyCronAuth(req.headers.get('authorization'));
+  if (authError) return authError;
 
   const sb = supabaseServiceRole();
   const result: Record<string, unknown> = {};

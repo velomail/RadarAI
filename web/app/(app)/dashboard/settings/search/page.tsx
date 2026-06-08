@@ -1,12 +1,12 @@
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
-import { DashboardPage } from '@/components/layout/DashboardPage';
 import { SearchProfileFields } from '@/components/profile/SearchProfileFields';
 import { Button } from '@/components/ui/button';
 import { SEARCH_PAGE } from '@/lib/constants';
 import { supabaseServer, supabaseServiceRole } from '@/lib/supabase/server';
 import type { Resume, SearchProfile } from '@/lib/types';
 import { deleteProfile, updateProfile } from '@/app/(app)/dashboard/searches/[id]/actions';
+import { clearSeenJobs } from '@/app/(app)/dashboard/settings/actions';
 
 export default async function SearchSettingsPage() {
   const supabase = await supabaseServer();
@@ -41,23 +41,30 @@ export default async function SearchSettingsPage() {
   const remove = deleteProfile.bind(null, p.id);
 
   return (
-    <DashboardPage
-      backHref={SEARCH_PAGE}
-      backLabel="Search"
-      title="Email alerts & advanced settings"
-      description="Optional notifications and saved search defaults."
-    >
-      <form action={update} className="glass flex w-full flex-col gap-8 rounded-2xl p-8">
-        <div className="rounded-xl border border-border/60 bg-muted/30 px-4 py-3 text-sm text-muted-foreground">
-          Resume:{' '}
-          <span className="font-medium text-foreground">
-            {latestResume?.original_filename || 'Not on file'}
-          </span>
-          {' · '}
-          <Link href={SEARCH_PAGE} className="font-medium text-primary hover:underline">
-            Update resume
-          </Link>
-        </div>
+    <div className="flex w-full flex-col gap-8 lg:gap-10">
+      <header>
+        <h2 className="text-lg font-semibold tracking-tight lg:text-2xl">Search defaults</h2>
+        <p className="mt-1 text-sm text-muted-foreground lg:mt-2 lg:text-base">
+          Default What/Where criteria, match threshold, and notifications for new searches.
+        </p>
+      </header>
+
+      <div className="surface rounded-lg border border-border px-5 py-4 lg:px-6 lg:py-5">
+        <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+          Resume on file
+        </p>
+        <p className="mt-1 text-sm font-medium">
+          {latestResume?.original_filename || 'No resume uploaded'}
+        </p>
+        <Link
+          href={SEARCH_PAGE}
+          className="mt-2 inline-block text-xs text-muted-foreground hover:text-foreground"
+        >
+          Update resume on search page →
+        </Link>
+      </div>
+
+      <form action={update} className="surface flex w-full flex-col gap-6 rounded-lg p-6 lg:gap-8 lg:p-8">
         <SearchProfileFields
           userEmail={user.email ?? ''}
           defaults={{
@@ -76,9 +83,22 @@ export default async function SearchSettingsPage() {
         </Button>
       </form>
 
-      <div className="w-full rounded-2xl border border-[hsl(var(--danger))]/30 bg-[hsl(var(--danger))]/5 p-6">
-        <h2 className="font-semibold text-[hsl(var(--danger))]">Reset search profile</h2>
-        <p className="mt-2 text-sm text-muted-foreground">
+      <div className="surface rounded-lg p-6 lg:p-8">
+        <h2 className="font-semibold lg:text-xl">Shown job history</h2>
+        <p className="mt-2 text-sm text-muted-foreground lg:text-base">
+          Radar hides listings you were already shown in the last 14 days. Clear this if searches
+          return no new matches and you want to see those roles again.
+        </p>
+        <form action={clearSeenJobs} className="mt-4">
+          <Button type="submit" variant="outline" size="lg">
+            Clear shown job history
+          </Button>
+        </form>
+      </div>
+
+      <div className="surface rounded-lg p-6 lg:p-8">
+        <h2 className="font-semibold lg:text-xl">Reset search profile</h2>
+        <p className="mt-2 text-sm text-muted-foreground lg:text-base">
           Removes saved criteria so you can set up again from scratch. Past run history is kept.
         </p>
         <form action={remove} className="mt-4">
@@ -87,6 +107,6 @@ export default async function SearchSettingsPage() {
           </Button>
         </form>
       </div>
-    </DashboardPage>
+    </div>
   );
 }

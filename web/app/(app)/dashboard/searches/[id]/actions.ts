@@ -3,8 +3,9 @@
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
-import { MANUAL_SCHEDULE_CRON, SEARCH_PAGE } from '@/lib/constants';
+import { SEARCH_PAGE } from '@/lib/constants';
 import { parseQueriesFromForm, parseSearchFocus } from '@/lib/parse-search-form';
+import { resolveScheduleCron } from '@/lib/schedule-cron';
 import { resolveResumeIdFromForm } from '@/lib/resume/resolve-resume-from-form';
 import { supabaseServer, supabaseServiceRole } from '@/lib/supabase/server';
 
@@ -34,9 +35,11 @@ export async function updateProfile(profileId: string, formData: FormData) {
     location: formData.get('location')?.toString() ?? '',
     remote_only: formData.get('remote_only')?.toString(),
     min_score: formData.get('min_score')?.toString() ?? '70',
-    schedule_cron: formData.get('schedule_cron')?.toString() || MANUAL_SCHEDULE_CRON,
+    schedule_cron: formData.get('schedule_cron')?.toString(),
     notify_email: formData.get('notify_email')?.toString()?.trim() || '',
   });
+
+  const scheduleCron = await resolveScheduleCron(user.id, parsed.schedule_cron);
 
   const sb = supabaseServiceRole();
   const { data: existing } = await sb
@@ -58,7 +61,7 @@ export async function updateProfile(profileId: string, formData: FormData) {
       location: parsed.location,
       remote_only: !!parsed.remote_only,
       min_score: parsed.min_score,
-      schedule_cron: parsed.schedule_cron || MANUAL_SCHEDULE_CRON,
+      schedule_cron: scheduleCron,
       notify_email: parsed.notify_email || null,
     })
     .eq('id', profileId);

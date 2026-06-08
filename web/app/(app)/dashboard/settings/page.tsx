@@ -1,6 +1,5 @@
 import { redirect } from 'next/navigation';
 import { DataTrustNotice } from '@/components/trust/DataTrustNotice';
-import { NewsletterUpsell } from '@/components/marketing/NewsletterUpsell';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -24,22 +23,24 @@ export default async function SettingsPage() {
     .maybeSingle();
 
   return (
-    <section className="mx-auto flex w-full max-w-2xl flex-col gap-10">
+    <div className="flex w-full flex-col gap-8 lg:gap-10">
       <header>
-        <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
-        <p className="mt-1 text-muted-foreground">Account, notifications, and data privacy.</p>
+        <h2 className="text-lg font-semibold tracking-tight lg:text-2xl">Account</h2>
+        <p className="mt-1 text-sm text-muted-foreground lg:mt-2 lg:text-base">
+          Notifications, privacy, and account management.
+        </p>
       </header>
-
-      <NewsletterUpsell />
 
       <form
         action={updateNotificationDefaults}
-        className="glass flex flex-col gap-6 rounded-2xl p-6"
+        className="surface flex flex-col gap-6 rounded-lg p-6 lg:gap-8 lg:p-8"
       >
-        <h2 className="text-lg font-semibold">Telegram alerts (optional)</h2>
-        <p className="text-sm text-muted-foreground">
-          Get a message when a manual search completes. Separate from the email newsletter.
-        </p>
+        <div>
+          <h2 className="text-lg font-semibold lg:text-xl">Telegram alerts</h2>
+          <p className="mt-1 text-sm text-muted-foreground lg:text-base">
+            Optional message when a search completes.
+          </p>
+        </div>
         <div>
           <Label htmlFor="notify_telegram_chat_id">Telegram chat ID</Label>
           <Input
@@ -57,18 +58,18 @@ export default async function SettingsPage() {
 
       <DataTrustNotice />
 
-      <section className="glass rounded-2xl p-6">
-        <h2 className="text-lg font-semibold">Account</h2>
-        <p className="mt-1 text-sm text-muted-foreground">Signed in as {user.email}</p>
-        <p className="mt-3 text-sm text-muted-foreground">
-          You can delete your account data as described in our{' '}
-          <a href="/privacy" className="text-primary hover:underline">
+      <section className="surface rounded-lg p-6 lg:p-8">
+        <h2 className="text-lg font-semibold lg:text-xl">Signed in</h2>
+        <p className="mt-1 text-sm text-muted-foreground lg:text-base">{user.email}</p>
+        <p className="mt-3 text-sm text-muted-foreground lg:text-base">
+          Delete your account data as described in our{' '}
+          <a href="/privacy" className="font-medium text-foreground underline">
             privacy policy
           </a>
-          . Contact the operator of this deployment to request removal.
+          .
         </p>
-        <form action={deleteAccount} className="mt-5 rounded-xl border border-destructive/40 bg-destructive/5 p-4">
-          <h3 className="text-sm font-semibold text-destructive">Delete account</h3>
+        <form action={deleteAccount} className="mt-6 border border-border p-4">
+          <h3 className="text-sm font-semibold">Delete account</h3>
           <p className="mt-1 text-xs text-muted-foreground">
             Permanently removes your account and related data. Type DELETE to confirm.
           </p>
@@ -83,6 +84,6 @@ export default async function SettingsPage() {
           </div>
         </form>
       </section>
-    </section>
+    </div>
   );
 }

@@ -62,29 +62,28 @@ export function SearchProfileFields({
         </div>
       </div>
 
-      <label className="flex items-center gap-2 text-sm">
+      <label className="flex min-h-[44px] cursor-pointer items-center gap-3 text-sm">
         <input
           type="checkbox"
           name="remote_only"
           defaultChecked={defaults?.remote_only ?? false}
-          className="h-4 w-4 rounded border-border"
+          className="h-5 w-5 shrink-0 rounded border-border"
         />
         Remote roles only
       </label>
 
       <div className="rounded-lg border border-border bg-muted/40 p-4">
-        <label className="flex items-start gap-2 text-sm">
+        <label className="flex min-h-[44px] cursor-pointer items-start gap-3 text-sm">
           <input
             type="checkbox"
             checked={emailOnComplete}
             onChange={(e) => setEmailOnComplete(e.target.checked)}
-            className="mt-1 h-4 w-4 rounded border-border"
+            className="mt-0.5 h-5 w-5 shrink-0 rounded border-border"
           />
           <span>
             <span className="font-medium text-foreground">Email me when this search finishes</span>
             <span className="mt-1 block text-muted-foreground">
-              One-time summary to {accountEmail || 'your account email'}. Scheduled digests are Pro
-              (coming soon).
+              One-time summary to {accountEmail || 'your account email'} when a search finishes.
             </span>
           </span>
         </label>

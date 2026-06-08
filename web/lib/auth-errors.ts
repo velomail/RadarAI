@@ -13,6 +13,14 @@ export function formatAuthError(message: string): { title: string; detail: strin
     };
   }
 
+  if (lower.includes('pkce') || lower.includes('code verifier')) {
+    return {
+      title: 'Sign-in session expired',
+      detail:
+        'This usually means OAuth finished on a different URL than where you started (e.g. production Vercel instead of localhost). On localhost, set Supabase Site URL to http://localhost:3000 and add http://localhost:3000/auth/callback to Redirect URLs. See docs/AUTH_OAUTH_SETUP.md.',
+    };
+  }
+
   if (lower.includes('redirect') || lower.includes('url') || lower.includes('callback')) {
     return {
       title: 'Redirect URL not allowed',

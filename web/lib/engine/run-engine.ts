@@ -58,16 +58,21 @@ export async function runEngine(payload: EnginePayload): Promise<EngineResult | 
 
     const fetched = await fetchSources(enginePayload);
 
-    const { filtered, seen_filtered: seenFiltered } = await loadSeenAndFilter(
-      sb,
-      payload.user_id,
-      fetched.data,
-    );
+    const minReport = payload.min_report_jobs ?? 3;
+    const {
+      filtered,
+      seen_filtered: seenFiltered,
+      seen_backfilled: seenBackfilled,
+      seen_backfill_keys: seenBackfillKeys,
+    } = await loadSeenAndFilter(sb, payload.user_id, fetched.data, {
+      minBackfill: minReport,
+      maxTotal: MAX_JOBS_TO_SCORE,
+    });
 
     if (filtered.length === 0) {
       if (seenFiltered > 0) {
         throw new Error(
-          'All recent Adzuna matches were already shown in your last 14 days. Adjust search terms or run again later for fresh listings.',
+          'All recent matches were already shown in your last 14 days. Try different keywords or location, clear shown-job history in Settings → Search defaults, or run again later for fresh listings.',
         );
       }
       throw new Error('No new relevant jobs passed filters for this search.');
@@ -105,6 +110,10 @@ export async function runEngine(payload: EnginePayload): Promise<EngineResult | 
         run_id: runId,
         user_id: payload.user_id,
         min_score: payload.min_score || 70,
+        max_report_jobs: payload.max_report_jobs,
+        min_report_jobs: payload.min_report_jobs,
+        seen_backfilled_count: seenBackfilled,
+        seen_backfill_keys: new Set(seenBackfillKeys),
       },
     );
 

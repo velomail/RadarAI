@@ -41,13 +41,13 @@ export function scoreJobsMock(jobs: CleanJob[], resumeText: string): ScoredJobRa
     if (matchScore >= 80) fitVerdict = 'HIGH';
     else if (matchScore < 65) fitVerdict = 'LOW';
 
-    const roleSummary = `${job.job_title} at ${job.company} — ${job.is_remote ? 'remote-friendly' : 'on-site'} role focused on ${job.matched_query || 'core team deliverables'}. ${job.description_clean.slice(0, 180)}…`;
-
+    const roleSummary = `${job.company} is hiring a ${job.job_title}${job.is_remote ? ' with remote flexibility' : ` in ${job.location || 'your area'}`}. Day-to-day work centers on ${job.matched_query || 'core responsibilities'} with a team-oriented environment and clear deliverables. ${job.employment_type ? `This is listed as ${job.employment_type.toLowerCase().replace('_', '-')} employment.` : ''}`;
+    const whyPromising = `Your background aligns with this ${job.job_title} opening because your resume highlights transferable skills that map to the posting’s core duties at ${job.company}. The role rewards hands-on execution and communication — areas your experience already demonstrates. ${overlap >= 0.08 ? 'Keyword overlap between your resume and this listing is strong.' : 'Even with moderate keyword overlap, the arrangement and scope look like a sensible next step.'}`;
     const overlapPct = Math.round(overlap * 100);
     const experienceMatch =
       overlap >= 0.08
-        ? `Your resume aligns with this posting on skills and role scope (~${overlapPct}% keyword overlap). Strongest fit around ${job.matched_query || job.job_title}.`
-        : `Partial alignment with your background (~${overlapPct}% overlap). Worth reviewing if you want to pivot toward ${job.matched_query || job.job_title}.`;
+        ? `Your resume aligns with this posting on skills and role scope (~${overlapPct}% keyword overlap). Several themes in your CV echo ${job.company}'s ${job.job_title} requirements, especially around ${job.matched_query || 'core duties'}. ${job.is_remote ? 'The remote-friendly setup also fits typical location preferences.' : `The role is based in ${job.location || 'the listed area'}.`}`
+        : `Partial alignment with your background (~${overlapPct}% overlap). You bring transferable experience, though some posting requirements may stretch your current profile. Worth reviewing if you want to pivot toward ${job.matched_query || job.job_title}.`;
 
     const qualityFlags = job.direct_ats
       ? ['Direct apply', 'Verified listing']
@@ -68,9 +68,13 @@ export function scoreJobsMock(jobs: CleanJob[], resumeText: string): ScoredJobRa
       experience_match: experienceMatch,
       quality_flags: qualityFlags,
       risk_flags: matchScore < 68 ? ['Moderate fit — review gaps before applying'] : [],
-      key_advantages: overlap >= 0.08 ? 'Transferable skills match posting keywords.' : 'General professional background.',
-      gaps_or_objections: overlap < 0.08 ? 'Limited keyword overlap — consider tailoring your resume.' : '',
-      why_promising: `${job.company} offers a clear ${job.job_title} path with ${job.is_remote ? 'remote flexibility' : 'local presence'}.`,
+      key_advantages:
+        overlap >= 0.08
+          ? `• Resume skills overlap posting keywords (~${overlapPct}%)\n• Experience maps to ${job.matched_query || job.job_title} duties\n• Professional track record supports day-one contribution`
+          : `• General professional background fits entry to this role\n• Open to growing into ${job.matched_query || job.job_title} responsibilities`,
+      gaps_or_objections:
+        overlap < 0.08 ? '• Limited keyword overlap — tailor resume to this posting' : '',
+      why_promising: whyPromising,
       cover_letter_hook: `I am interested in the ${job.job_title} role at ${job.company} because my background maps to the responsibilities described, and I am ready to contribute from day one.`,
       talking_points: [
         `Experience relevant to ${job.matched_query || job.job_title}`,

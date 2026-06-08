@@ -3,9 +3,11 @@ import type { EmailOtpType } from '@supabase/supabase-js';
 import { safeAuthRedirect } from '@/lib/auth-utils';
 import { SEARCH_PAGE } from '@/lib/constants';
 import {
-  createSupabaseRouteHandlerClient,
-  redirectWithSessionCookies,
-} from '@/lib/supabase/route-handler';
+  clearAuthNextCookie,
+  createSupabaseRouteClient,
+  readAuthNextCookie,
+  redirectWithCookies,
+} from '@/lib/supabase/route-client';
 
 function authErrorRedirect(origin: string, message: string) {
   return NextResponse.redirect(
@@ -20,10 +22,6 @@ function resolvePostAuthPath(next: string): string {
 
 export async function GET(req: NextRequest) {
   const url = req.nextUrl;
-  const next = safeAuthRedirect(
-    url.searchParams.get('next') || url.searchParams.get('redirect'),
-    SEARCH_PAGE,
-  );
 
   const oauthError = url.searchParams.get('error');
   const oauthDescription = url.searchParams.get('error_description');
@@ -42,7 +40,8 @@ export async function GET(req: NextRequest) {
     );
   }
 
-  const { supabase, response: sessionResponse } = createSupabaseRouteHandlerClient(req);
+  const next = safeAuthRedirect(readAuthNextCookie(req, SEARCH_PAGE), SEARCH_PAGE);
+  const { supabase, response } = createSupabaseRouteClient(req);
 
   let userId: string | undefined;
 
@@ -60,10 +59,11 @@ export async function GET(req: NextRequest) {
     return authErrorRedirect(url.origin, 'Sign-in succeeded but no user session was created.');
   }
 
-  const redirectPath = resolvePostAuthPath(next);
+  const sessionResponse = response();
+  clearAuthNextCookie(sessionResponse);
 
-  return redirectWithSessionCookies(
-    new URL(redirectPath, url.origin),
-    sessionResponse(),
+  return redirectWithCookies(
+    new URL(resolvePostAuthPath(next), url.origin),
+    sessionResponse,
   );
 }

@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { maskProFieldsForPlan } from '@/lib/jobs/mask-pro-fields';
+import { checkRateLimit, getClientIpFromRequest } from '@/lib/rate-limit';
 import { getUserPlan } from '@/lib/plan';
 import { supabaseServer, supabaseServiceRole } from '@/lib/supabase/server';
 import type { Job } from '@/lib/types';
 
 export async function GET(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
@@ -15,6 +16,11 @@ export async function GET(
   } = await userSupabase.auth.getUser();
   if (!user) {
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
+  }
+
+  const ip = getClientIpFromRequest(req.headers);
+  if (!checkRateLimit(`run-poll:${user.id}:${ip}`, 300, 60 * 60 * 1000)) {
+    return NextResponse.json({ error: 'rate_limited' }, { status: 429 });
   }
 
   const sb = supabaseServiceRole();

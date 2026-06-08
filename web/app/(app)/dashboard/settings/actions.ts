@@ -24,6 +24,23 @@ export async function updateNotificationDefaults(formData: FormData) {
   revalidatePath('/dashboard/settings');
 }
 
+/** Clear 14-day shown-job dedup so the next search can surface listings again. */
+export async function clearSeenJobs() {
+  const supabase = await supabaseServer();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) throw new Error('Not authenticated.');
+
+  const sb = supabaseServiceRole();
+  const { error } = await sb.from('seen_jobs').delete().eq('user_id', user.id);
+  if (error) throw new Error(error.message);
+
+  revalidatePath('/dashboard/settings');
+  revalidatePath('/dashboard/settings/search');
+  revalidatePath('/dashboard/searches');
+}
+
 export async function deleteAccount(formData: FormData) {
   const confirmation = formData.get('confirmation')?.toString().trim() ?? '';
   const normalizedConfirmation = confirmation.toUpperCase();

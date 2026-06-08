@@ -11,16 +11,15 @@ export const metadata: Metadata = {
 
 export default function PrivacyPage() {
   return (
-    <main className="gradient-mesh flex min-h-screen flex-col">
+    <main className="flex min-h-screen flex-col bg-background">
       <MarketingHeader />
-      <div className="pointer-events-none fixed inset-0 overflow-hidden">
-        <div className="animate-float absolute -left-32 top-1/4 h-96 w-96 rounded-full bg-primary/10 blur-3xl" />
-        <div className="animate-float-delayed absolute -right-32 bottom-1/4 h-80 w-80 rounded-full bg-primary/5 blur-3xl" />
-      </div>
 
-      <article className="glass relative mx-auto mt-28 w-full max-w-3xl rounded-2xl px-6 py-12 md:py-16">
+      <article
+        className="mx-auto w-full max-w-3xl px-5 py-16 sm:px-8 sm:py-20"
+        style={{ paddingTop: 'calc(5.5rem + env(safe-area-inset-top, 0px))' }}
+      >
         <p className="text-sm text-muted-foreground">Last updated: May 2026</p>
-        <h1 className="mt-2 text-3xl font-bold tracking-tight">Privacy Policy</h1>
+        <h1 className="mt-2 text-2xl font-bold tracking-tight sm:text-3xl">Privacy Policy</h1>
         <p className="mt-4 text-muted-foreground">
           {APP_NAME} (&ldquo;we&rdquo;, &ldquo;us&rdquo;) helps job seekers find and evaluate roles using
           resume-aware search. This policy describes what we collect and how we use it.
@@ -85,7 +84,7 @@ export default function PrivacyPage() {
               engine mode is enabled (not used in demo/mock mode).
             </li>
             <li>
-              <strong className="text-foreground">Adzuna</strong> — job source API used to fetch
+              <strong className="text-foreground">Job listing provider</strong> — API used to fetch
               listings in live engine mode.
             </li>
             <li>

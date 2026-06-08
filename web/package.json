@@ -8,6 +8,7 @@
   "scripts": {
     "dev": "node scripts/ensure-dev-cache.mjs && next dev",
     "dev:clean": "node scripts/clean-next-cache.mjs && next dev",
+    "dev:vercel": "node scripts/clean-next-cache.mjs && npx vercel dev --yes",
     "prebuild": "node scripts/clean-next-cache.mjs",
     "build": "next build",
     "start": "next start",

@@ -19,7 +19,7 @@ import type { EnginePayload, FetchResult, RawJob } from './types';
 const ADZUNA_URL_BASE = 'https://api.adzuna.com/v1/api/jobs';
 
 const MAX_PRIMARY_QUERIES = Number(process.env.ADZUNA_MAX_PRIMARY_QUERIES || 2);
-const MAX_WIDEN_QUERIES = Number(process.env.ADZUNA_MAX_WIDEN_QUERIES || 0);
+const MAX_WIDEN_QUERIES = Number(process.env.ADZUNA_MAX_WIDEN_QUERIES || 2);
 const FETCH_DELAY_MS = Number(process.env.ADZUNA_FETCH_DELAY_MS || 800);
 
 function defaultWidenQueries(payload: EnginePayload): string[] {

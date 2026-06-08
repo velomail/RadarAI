@@ -12,7 +12,7 @@ interface Status {
 }
 
 const PIPELINE_STEPS = [
-  'Fetching listings from Adzuna',
+  'Finding relevant listings',
   'Filtering new and relevant jobs',
   'Scoring against your resume',
   'Ranking top matches',
@@ -25,32 +25,28 @@ function RunLoading({ status, elapsed }: { status: 'pending' | 'running'; elapse
   );
 
   return (
-    <div className="rounded-xl border border-border bg-card p-8 shadow-sm md:p-10">
-      <h2 className="text-center text-xl font-semibold tracking-tight">
+    <div className="surface w-full p-8 lg:p-10">
+      <h2 className="text-xl font-semibold tracking-tight lg:text-2xl">
         {status === 'pending' ? 'Preparing your search' : 'Analyzing matches'}
       </h2>
-      <p className="mt-2 text-center text-sm text-muted-foreground">
+      <p className="mt-2 text-sm text-muted-foreground lg:text-base">
         {elapsed}s elapsed · typically 15–45 seconds
       </p>
 
-      <ul className="mx-auto mt-8 max-w-md space-y-3">
+      <ul className="mt-8 max-w-md space-y-3 lg:max-w-lg lg:space-y-4">
         {PIPELINE_STEPS.map((label, i) => {
           const done = i < stepIndex;
           const active = i === stepIndex;
           return (
             <li
               key={label}
-              className={`flex items-center gap-3 text-sm ${
-                done ? 'text-foreground' : active ? 'text-foreground font-medium' : 'text-muted-foreground'
+              className={`flex items-center gap-3 text-sm lg:text-base ${
+                done || active ? 'text-foreground' : 'text-muted-foreground'
               }`}
             >
               <span
                 className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs ${
-                  done
-                    ? 'bg-primary text-primary-foreground'
-                    : active
-                      ? 'animate-pulse bg-primary/20 text-primary'
-                      : 'bg-muted text-muted-foreground'
+                  done || active ? 'bg-foreground text-background' : 'border border-border'
                 }`}
               >
                 {done ? '✓' : i + 1}
@@ -61,9 +57,9 @@ function RunLoading({ status, elapsed }: { status: 'pending' | 'running'; elapse
         })}
       </ul>
 
-      <div className="mx-auto mt-8 h-1.5 max-w-xs overflow-hidden rounded-full bg-muted">
+      <div className="mt-8 h-1 max-w-xs overflow-hidden bg-muted">
         <div
-          className="h-full rounded-full bg-primary transition-all duration-500"
+          className="h-full bg-foreground transition-all duration-500"
           style={{ width: `${Math.min(95, 12 + elapsed * 3)}%` }}
         />
       </div>
@@ -71,7 +67,7 @@ function RunLoading({ status, elapsed }: { status: 'pending' | 'running'; elapse
   );
 }
 
-export function RunPoller({ runId, tier: tierProp }: { runId: string; tier?: UserPlan }) {
+export function RunPoller({ runId }: { runId: string; tier?: UserPlan }) {
   const [state, setState] = useState<Status | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [elapsed, setElapsed] = useState(0);
@@ -110,9 +106,9 @@ export function RunPoller({ runId, tier: tierProp }: { runId: string; tier?: Use
 
   if (error) {
     return (
-      <div className="rounded-xl border border-[hsl(var(--danger))] bg-card p-6 shadow-sm">
-        <h2 className="font-semibold text-[hsl(var(--danger))]">Something went wrong</h2>
-        <p className="mt-2 text-sm">{error}</p>
+      <div className="surface w-full p-6 lg:p-8">
+        <h2 className="font-semibold lg:text-xl">Something went wrong</h2>
+        <p className="mt-2 text-sm text-muted-foreground lg:text-base">{error}</p>
       </div>
     );
   }
@@ -120,9 +116,8 @@ export function RunPoller({ runId, tier: tierProp }: { runId: string; tier?: Use
   if (!state) {
     return (
       <div className="flex flex-col items-center gap-3 py-20 text-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-        <p className="text-sm font-medium text-foreground">Starting your search…</p>
-        <p className="text-xs text-muted-foreground">Connecting to the pipeline</p>
+        <div className="h-6 w-6 animate-spin rounded-full border-2 border-foreground border-t-transparent" />
+        <p className="text-sm font-medium">Starting your search…</p>
       </div>
     );
   }
@@ -133,19 +128,19 @@ export function RunPoller({ runId, tier: tierProp }: { runId: string; tier?: Use
 
   if (state.run.status === 'error') {
     return (
-      <div className="rounded-xl border border-[hsl(var(--danger))] bg-card p-6 shadow-sm">
-        <h2 className="font-semibold text-[hsl(var(--danger))]">Run failed</h2>
-        <p className="mt-2 text-sm">{state.run.error || 'See logs for details.'}</p>
+      <div className="surface w-full p-6 lg:p-8">
+        <h2 className="font-semibold lg:text-xl">Run failed</h2>
+        <p className="mt-2 text-sm text-muted-foreground lg:text-base">
+          {state.run.error || 'See logs for details.'}
+        </p>
       </div>
     );
   }
 
-  const tier = tierProp ?? state.plan ?? 'free';
-
   return (
     <div className="flex flex-col gap-8">
       <RunSummary run={state.run} />
-      <JobsList jobs={state.jobs} tier={tier} />
+      <JobsList jobs={state.jobs} />
     </div>
   );
 }

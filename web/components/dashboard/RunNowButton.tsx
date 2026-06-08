@@ -3,7 +3,6 @@
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowRight, Sparkles } from 'lucide-react';
 import { SEARCH_PAGE } from '@/lib/constants';
 import { Button } from '@/components/ui/button';
 
@@ -25,7 +24,7 @@ export function RunNowButton({
     <div className={`flex flex-col gap-3 ${fullWidth ? 'w-full' : ''}`}>
       <Button
         size="lg"
-        className={`h-11 rounded-xl px-6 ${fullWidth ? 'w-full justify-center text-base' : ''}`}
+        className={`h-11 px-6 ${fullWidth ? 'w-full justify-center text-base' : ''}`}
         disabled={pending || limitHit}
         onClick={() =>
           startTransition(async () => {
@@ -34,7 +33,7 @@ export function RunNowButton({
             const res = await fetch(`/api/profiles/${profileId}/run`, { method: 'POST' });
             if (res.status === 429) {
               setLimitHit(true);
-              setError('Daily search limit reached (3 per day on the free plan).');
+              setError('Daily search limit reached (5 per day).');
               return;
             }
             if (res.status !== 202 && !res.ok) {
@@ -48,26 +47,20 @@ export function RunNowButton({
         }
       >
         {pending ? 'Starting search…' : label}
-        <ArrowRight className="ml-2 h-4 w-4" />
       </Button>
 
       {error && !limitHit ? (
-        <p className="text-sm text-[hsl(var(--danger))]">{error}</p>
+        <p className="text-sm text-muted-foreground">{error}</p>
       ) : null}
 
       {limitHit ? (
-        <div className="rounded-xl border border-primary/25 bg-primary/5 px-4 py-3 text-sm">
-          <p className="font-medium text-foreground">You&apos;ve used all 3 free searches today</p>
+        <div className="border border-border px-4 py-3 text-sm">
+          <p className="font-medium">You&apos;ve used all 5 searches today</p>
           <p className="mt-1 text-muted-foreground">
             Resets at midnight UTC.{' '}
-            <Link href="/support" className="font-medium text-primary hover:underline">
+            <Link href="/support" className="font-medium text-foreground underline">
               Contact us
-            </Link>{' '}
-            or upgrade when RadarAI Pro launches.
-          </p>
-          <p className="mt-2 flex items-center gap-1.5 text-xs text-muted-foreground">
-            <Sparkles className="h-3.5 w-3.5 text-primary" />
-            Pro — unlimited searches &amp; scheduled digests (coming soon)
+            </Link>
           </p>
         </div>
       ) : null}

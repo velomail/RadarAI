@@ -5,19 +5,16 @@ type Variant = 'default' | 'outline' | 'ghost' | 'danger';
 type Size = 'default' | 'sm' | 'lg';
 
 const variants: Record<Variant, string> = {
-  default:
-    'bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-50',
-  outline:
-    'border border-border bg-transparent hover:bg-accent disabled:opacity-50',
-  ghost: 'bg-transparent hover:bg-accent disabled:opacity-50',
-  danger:
-    'bg-[hsl(var(--danger))] text-white hover:opacity-90 disabled:opacity-50',
+  default: 'bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-50',
+  outline: 'border border-border bg-transparent hover:bg-secondary disabled:opacity-50',
+  ghost: 'bg-transparent hover:bg-secondary disabled:opacity-50',
+  danger: 'border border-border bg-transparent text-foreground hover:bg-secondary disabled:opacity-50',
 };
 
 const sizes: Record<Size, string> = {
-  default: 'h-10 px-4 text-sm',
-  sm: 'h-8 px-3 text-xs',
-  lg: 'h-11 px-6 text-base',
+  default: 'h-11 px-4 text-base lg:h-12',
+  sm: 'h-9 px-3 text-sm',
+  lg: 'h-12 px-8 text-base lg:h-[3.25rem] lg:text-lg',
 };
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {

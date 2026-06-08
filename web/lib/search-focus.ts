@@ -14,7 +14,7 @@ export const DEFAULT_SEARCH_FOCUS = 'auto';
 export const SEARCH_FOCUS_OPTIONS: SearchFocusOption[] = [
   {
     id: 'auto',
-    label: 'Match my resume (recommended)',
+    label: 'Match my resume',
     defaultQueries: [],
     widenQueries: [],
     scoringContext:

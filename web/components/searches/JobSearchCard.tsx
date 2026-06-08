@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useFormStatus } from 'react-dom';
-import { ArrowRight, Settings2 } from 'lucide-react';
 import { DailyUsageMeter } from '@/components/dashboard/DailyUsageMeter';
 import { JobSearchFields } from '@/components/profile/JobSearchFields';
 import { ResumeUploadField } from '@/components/profile/ResumeUploadField';
@@ -23,15 +22,14 @@ type Props = {
 function SearchSubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" size="lg" className="h-11 w-full rounded-xl" disabled={pending}>
+    <Button type="submit" size="lg" className="h-11 w-full" disabled={pending}>
       {pending ? 'Starting search…' : 'Search now'}
-      <ArrowRight className="ml-2 h-4 w-4" />
     </Button>
   );
 }
 
 const ERROR_MESSAGES: Record<string, string> = {
-  daily_limit: "You've used all 3 free searches today. Resets at midnight UTC.",
+  daily_limit: "You've used all 5 searches today. Resets at midnight UTC.",
   resume_missing: 'Upload a resume before searching.',
 };
 
@@ -42,12 +40,12 @@ export function JobSearchCard({ profile, resumeFilename, dailyUsage, error }: Pr
   return (
     <div className="flex w-full flex-col gap-6">
       {error ? (
-        <div className="rounded-xl border border-[hsl(var(--danger))]/30 bg-[hsl(var(--danger))]/5 px-4 py-3 text-sm text-[hsl(var(--danger))]">
+        <div className="border border-border px-4 py-3 text-sm text-foreground">
           {ERROR_MESSAGES[error] || error}
         </div>
       ) : null}
 
-      <form action={updateAccountResume} className="space-y-3 border-b border-border/50 pb-6">
+      <form action={updateAccountResume} className="space-y-3 border-b border-border pb-6">
         <ResumeUploadField
           compact
           currentFilename={resumeFilename}
@@ -84,13 +82,12 @@ export function JobSearchCard({ profile, resumeFilename, dailyUsage, error }: Pr
         <SearchSubmitButton />
       </form>
 
-      <div className="flex justify-center border-t border-border/50 pt-4">
+      <div className="border-t border-border pt-4">
         <Link
-          href={`/dashboard/settings/search`}
-          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
+          href="/dashboard/settings/search"
+          className="text-sm text-muted-foreground hover:text-foreground"
         >
-          <Settings2 className="h-3.5 w-3.5" />
-          Email alerts &amp; advanced settings
+          Search defaults &amp; notifications
         </Link>
       </div>
     </div>

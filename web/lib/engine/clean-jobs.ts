@@ -32,6 +32,16 @@ function stripHtml(text: string): string {
     .trim();
 }
 
+function stripPostingBoilerplate(text: string): string {
+  let t = text.trim();
+  for (let i = 0; i < 3; i++) {
+    const next = t.replace(/^(job description|overview|description)\s*[:\-]?\s*/i, '').trim();
+    if (next === t) break;
+    t = next;
+  }
+  return t;
+}
+
 function truncate(text: string, maxLen: number): string {
   if (!text || text.length <= maxLen) return text || '';
   return `${text.slice(0, maxLen)}… [truncated]`;
@@ -67,7 +77,7 @@ function normalizeJob(raw: RawJob): CleanJob {
     apply_url_canonical: canonicalApplyUrl(applyUrl),
     company: (raw.employer_name || '').trim(),
     job_title: (raw.job_title || '').trim(),
-    description_clean: truncate(stripHtml(descriptionRaw), MAX_DESCRIPTION_CHARS),
+    description_clean: truncate(stripPostingBoilerplate(stripHtml(descriptionRaw)), MAX_DESCRIPTION_CHARS),
     location: buildLocation(raw),
     is_remote: raw.job_is_remote === true,
     posted_at: raw.job_posted_at_datetime_utc || raw.job_posted_at || '',

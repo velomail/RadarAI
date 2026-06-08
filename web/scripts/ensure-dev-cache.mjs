@@ -34,10 +34,22 @@ function cacheIsCorrupt(root) {
     reasons.push('missing webpack chunk');
   }
 
-  const vendorSupabase = path.join(serverDir, 'vendor-chunks/@supabase.js');
   const serverAppDir = path.join(serverDir, 'app');
-  if (fs.existsSync(serverAppDir) && fs.readdirSync(serverAppDir).length > 0 && !fs.existsSync(vendorSupabase)) {
-    reasons.push('missing Supabase vendor chunk');
+  const hasServerApp =
+    fs.existsSync(serverAppDir) && fs.readdirSync(serverAppDir).length > 0;
+
+  if (hasServerApp && !fs.existsSync(path.join(root, 'routes-manifest.json'))) {
+    reasons.push('missing routes-manifest.json');
+  }
+
+  const vendorDir = path.join(serverDir, 'vendor-chunks');
+  if (hasServerApp) {
+    for (const chunk of ['@supabase.js', 'tailwind-merge.js']) {
+      if (!fs.existsSync(path.join(vendorDir, chunk))) {
+        reasons.push(`missing ${chunk}`);
+        break;
+      }
+    }
   }
 
   if (reasons.length) {

@@ -11,6 +11,8 @@ export interface EnginePayload {
   remote_only?: boolean;
   employment_types?: string[];
   search_focus?: string;
+  max_report_jobs?: number;
+  min_report_jobs?: number;
 }
 
 export interface RawJob {
@@ -112,6 +114,7 @@ export interface RunSummary {
   direct_ats_count: number;
   floored: boolean;
   banner_label: string;
+  seen_backfilled_count?: number;
   sources_breakdown: Record<string, number>;
   widened: boolean;
   raw_counts: FetchResult['raw_counts'];

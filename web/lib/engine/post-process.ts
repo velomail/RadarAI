@@ -208,13 +208,25 @@ export interface PostProcessResult {
 export function postProcessScores(
   scored: ScoredJobRaw[],
   fetchMeta: Pick<FetchResult, 'sources_breakdown' | 'raw_counts' | 'widened'>,
-  ctx: { run_id: string; user_id: string | null; min_score: number },
+  ctx: {
+    run_id: string;
+    user_id: string | null;
+    min_score: number;
+    max_report_jobs?: number;
+    min_report_jobs?: number;
+    seen_backfilled_count?: number;
+    seen_backfill_keys?: Set<string>;
+  },
 ): PostProcessResult {
   if (!scored.length) {
     throw new Error('Could not parse any AI job scores.');
   }
 
   const minScore = ctx.min_score || MIN_SCORE_DEFAULT;
+  const maxReport = ctx.max_report_jobs ?? MAX_REPORT_JOBS;
+  const minReport = ctx.min_report_jobs ?? MIN_REPORT_JOBS;
+  const seenBackfilled = ctx.seen_backfilled_count ?? 0;
+  const seenBackfillKeys = ctx.seen_backfill_keys ?? new Set<string>();
 
   const allNormalized = scored
     .map((s) => {
@@ -253,17 +265,20 @@ export function postProcessScores(
   let floored = false;
   let bannerLabel: string;
 
-  if (qualified.length >= MIN_REPORT_JOBS) {
-    displayed = qualified.slice(0, MAX_REPORT_JOBS);
-    bannerLabel = 'Quality matches';
+  if (qualified.length >= minReport) {
+    displayed = qualified.slice(0, maxReport);
+    bannerLabel = maxReport === 1 ? 'Your best match' : 'Quality matches';
   } else {
     floored = true;
     const extras = allNormalized
       .filter((j) => !j.include)
-      .slice(0, MIN_REPORT_JOBS - qualified.length)
+      .slice(0, minReport - qualified.length)
       .map((j) => ({ ...j, quality_tier: 'Lower quality day' }));
-    displayed = [...qualified, ...extras].slice(0, MIN_REPORT_JOBS);
-    bannerLabel = `Lower quality day, top ${displayed.length} of ${allNormalized.length} scanned`;
+    displayed = [...qualified, ...extras].slice(0, minReport);
+    bannerLabel =
+      maxReport === 1
+        ? 'Best available match'
+        : `Lower quality day, top ${displayed.length} of ${allNormalized.length} scanned`;
   }
 
   const omittedCount = Math.max(0, qualified.length - displayed.length);
@@ -314,15 +329,17 @@ export function postProcessScores(
   }));
 
   const nowIso = new Date().toISOString();
+  // Only mark jobs the user actually saw — not every scored candidate — so repeat
+  // searches are not exhausted after one run (especially with mock fixtures).
   const seenPayload: SeenUpsertRow[] = ctx.user_id
-    ? allNormalized
+    ? displayed
         .map((j) => {
           const canonical = j.enrichment.job_id
             ? `id:${j.enrichment.job_id}`
             : canonicalApplyUrl(j.apply_url)
               ? `url:${canonicalApplyUrl(j.apply_url)}`
               : '';
-          if (!canonical) return null;
+          if (!canonical || seenBackfillKeys.has(canonical)) return null;
           return {
             user_id: ctx.user_id as string,
             canonical_key: canonical,
@@ -343,6 +360,7 @@ export function postProcessScores(
     direct_ats_count: directAtsCount,
     floored,
     banner_label: bannerLabel,
+    seen_backfilled_count: seenBackfilled > 0 ? seenBackfilled : undefined,
     sources_breakdown: fetchMeta.sources_breakdown,
     widened: fetchMeta.widened,
     raw_counts: fetchMeta.raw_counts,

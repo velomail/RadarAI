@@ -14,6 +14,7 @@ type Props = {
   /** When a resume exists, show filename + update button instead of full dropzone */
   compact?: boolean;
   onFileChange?: (hasFile: boolean) => void;
+  size?: 'default' | 'lg';
 };
 
 export function ResumeUploadField({
@@ -22,7 +23,9 @@ export function ResumeUploadField({
   required = false,
   compact = false,
   onFileChange,
+  size = 'default',
 }: Props) {
+  const large = size === 'lg';
   const [resumeFile, setResumeFile] = useState<File | null>(null);
   const [showPicker, setShowPicker] = useState(false);
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -38,10 +41,10 @@ export function ResumeUploadField({
 
   if (showCompact) {
     return (
-      <div className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-border/60 bg-muted/30 px-4 py-3">
+      <div className="flex flex-col gap-3 rounded-xl border border-border/60 bg-muted/30 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
         <div className="flex min-w-0 items-center gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10">
-            <FileText className="h-5 w-5 text-primary" />
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center border border-border bg-muted">
+            <FileText className="h-5 w-5 text-foreground" />
           </div>
           <div className="min-w-0">
             <p className="text-sm font-medium text-foreground">Current resume</p>
@@ -61,17 +64,17 @@ export function ResumeUploadField({
   }
 
   return (
-    <div className="space-y-2">
+    <div className={large ? 'space-y-3' : 'space-y-2'}>
       {!compact ? (
-        <Label htmlFor={inputId} className="text-sm font-medium">
+        <Label htmlFor={inputId} className={large ? 'text-base font-medium' : 'text-sm font-medium'}>
           Resume {required ? '(required)' : '(optional — upload to replace current)'}
         </Label>
       ) : null}
 
       {currentFilename && !resumeFile && !compact ? (
         <div className="flex items-center gap-3 rounded-xl border border-border/60 bg-muted/30 px-4 py-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10">
-            <FileText className="h-5 w-5 text-primary" />
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center border border-border bg-muted">
+            <FileText className="h-5 w-5 text-foreground" />
           </div>
           <div className="min-w-0 flex-1">
             <p className="text-sm font-medium text-foreground">Current resume</p>
@@ -116,22 +119,30 @@ export function ResumeUploadField({
         ) : (
           <label
             htmlFor={inputId}
-            className="glass group flex cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-border/70 p-6 transition-colors hover:bg-card/80"
+            className={`flex cursor-pointer flex-col items-center justify-center border border-dashed border-border hover:bg-secondary ${
+              large ? 'p-8' : 'p-6'
+            }`}
           >
-            <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 transition-colors group-hover:bg-primary/15">
-              <Upload className="h-5 w-5 text-primary" />
+            <div
+              className={`mb-3 flex items-center justify-center border border-border bg-muted ${
+                large ? 'h-14 w-14' : 'h-12 w-12'
+              }`}
+            >
+              <Upload className={large ? 'h-6 w-6 text-foreground' : 'h-5 w-5 text-foreground'} />
             </div>
-            <span className="text-sm font-medium">
+            <span className={large ? 'text-base font-medium' : 'text-sm font-medium'}>
               {currentFilename ? 'Upload a different PDF' : 'Drop your resume here'}
             </span>
-            <span className="mt-1 text-xs text-muted-foreground">PDF only, up to 2MB</span>
+            <span className={`mt-1 text-muted-foreground ${large ? 'text-sm' : 'text-xs'}`}>
+              PDF only, up to 2MB
+            </span>
           </label>
         )
       ) : (
-        <div className="glass flex items-center justify-between rounded-2xl p-4">
+        <div className="flex items-center justify-between border border-border p-4">
           <div className="flex min-w-0 items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10">
-              <FileText className="h-5 w-5 text-primary" />
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center border border-border bg-muted">
+              <FileText className="h-5 w-5 text-foreground" />
             </div>
             <div className="min-w-0">
               <p className="truncate text-sm font-medium">{resumeFile.name}</p>
@@ -145,7 +156,7 @@ export function ResumeUploadField({
               if (inputRef.current) inputRef.current.value = '';
               if (compact) setShowPicker(false);
             }}
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-colors hover:bg-muted"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg transition-colors hover:bg-muted"
             aria-label="Remove selected file"
           >
             <X className="h-4 w-4 text-muted-foreground" />

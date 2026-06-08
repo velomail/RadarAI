@@ -2,6 +2,7 @@ import { after, NextRequest, NextResponse } from 'next/server';
 import { runEngine } from '@/lib/engine';
 import { supabaseServer, supabaseServiceRole } from '@/lib/supabase/server';
 import { consumeDailyQuery } from '@/lib/usage/consume-daily-query';
+import { AUTH_MAX_REPORT_JOBS, AUTH_MIN_REPORT_JOBS } from '@/lib/usage/constants';
 
 export async function POST(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id: profileId } = await params;
@@ -66,6 +67,8 @@ export async function POST(_req: NextRequest, { params }: { params: Promise<{ id
       remote_only: !!profile.remote_only,
       employment_types: profile.employment_types || [],
       search_focus: profile.search_focus || 'auto',
+      max_report_jobs: AUTH_MAX_REPORT_JOBS,
+      min_report_jobs: AUTH_MIN_REPORT_JOBS,
     });
   });
 

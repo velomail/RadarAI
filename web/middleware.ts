@@ -52,6 +52,6 @@ export async function middleware(request: NextRequest) {
 export const config = {
   // Skip cron routes (no session to refresh) and static assets.
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|api/cron|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    '/((?!_next/static|_next/image|favicon.ico|api/cron|auth/callback|auth/oauth|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 };

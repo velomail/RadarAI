@@ -1,7 +1,9 @@
 import { after, NextRequest, NextResponse } from 'next/server';
 import { isScheduledNewsletterProfile } from '@/lib/constants';
+import { verifyCronAuth } from '@/lib/cron-auth';
 import { cronMatchedInWindow, nowInTimezone, runEngine } from '@/lib/engine';
 import { supabaseServiceRole } from '@/lib/supabase/server';
+import { AUTH_MAX_REPORT_JOBS, AUTH_MIN_REPORT_JOBS } from '@/lib/usage/constants';
 
 const TZ = process.env.RADAR_TIMEZONE || 'America/Toronto';
 
@@ -15,11 +17,8 @@ export async function GET(req: NextRequest) {
   // Vercel attaches Authorization: Bearer <CRON_SECRET> automatically when
   // the env var is set. Reject anything else so cron-job.org / random
   // crawlers can't trigger runs.
-  const authHeader = req.headers.get('authorization');
-  const secret = process.env.CRON_SECRET;
-  if (secret && authHeader !== `Bearer ${secret}`) {
-    return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
-  }
+  const authError = verifyCronAuth(req.headers.get('authorization'));
+  if (authError) return authError;
 
   const sb = supabaseServiceRole();
   const { hour, minute } = nowInTimezone(TZ);
@@ -84,6 +83,8 @@ export async function GET(req: NextRequest) {
         remote_only: !!profile.remote_only,
         employment_types: profile.employment_types || [],
         search_focus: profile.search_focus || 'auto',
+        max_report_jobs: AUTH_MAX_REPORT_JOBS,
+        min_report_jobs: AUTH_MIN_REPORT_JOBS,
       });
     });
   }

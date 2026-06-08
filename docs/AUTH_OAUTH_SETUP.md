@@ -14,9 +14,21 @@ Supabase project: `keehrclncfqeetqynzts`
 
 | Setting | Value |
 |---------|--------|
-| **Site URL** | `https://web-ashen-sigma-71.vercel.app` |
-| **Redirect URLs** | `https://web-ashen-sigma-71.vercel.app/auth/callback**` |
-| | `http://localhost:3000/auth/callback**` |
+| **Site URL** | `https://web-ashen-sigma-71.vercel.app` (production) |
+| **Redirect URLs** | `https://web-ashen-sigma-71.vercel.app/auth/callback` |
+| | `http://localhost:3000/auth/callback` |
+
+### Local development (fixes “redirects to Vercel” + PKCE errors)
+
+Supabase sends users to **Site URL** when `redirectTo` is not on the allow list. For local OAuth:
+
+1. Add **`http://localhost:3000/auth/callback`** to **Redirect URLs** (exact path, no trailing slash).
+2. **While developing locally**, set **Site URL** to **`http://localhost:3000`** (temporarily).
+3. Run the app on **port 3000** only (`npm run dev` from `web/`).
+4. Set **`NEXT_PUBLIC_APP_URL=http://localhost:3000`** in `web/.env.local`.
+5. Before shipping, restore **Site URL** to `https://web-ashen-sigma-71.vercel.app`.
+
+If you skip step 2, OAuth often completes on production Vercel while the PKCE cookie was set on localhost — that produces the “code verifier not found” error.
 
 No trailing slash on Site URL.
 

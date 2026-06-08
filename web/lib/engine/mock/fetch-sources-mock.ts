@@ -50,7 +50,8 @@ function makeJob(query: string, location: string, index: number): RawJob {
     .replace('{title}', title)
     .replace('{location}', location);
   const remote = index % 3 === 0;
-  const id = `mock-adzuna-${hash(`${query}-${index}`)}`;
+  const dayBucket = new Date().toISOString().slice(0, 10);
+  const id = `mock-adzuna-${hash(`${query}-${index}-${dayBucket}`)}`;
   const applyUrl = `https://careers.${companySlug(company)}.com/jobs/${id}`;
 
   return {
@@ -80,7 +81,7 @@ export function fetchSourcesMock(payload: EnginePayload): FetchResult {
   const raw_counts: FetchResult['raw_counts'] = [];
 
   for (const q of queries) {
-    const batch = Array.from({ length: 7 }, (_, i) => makeJob(q, location, i));
+    const batch = Array.from({ length: 12 }, (_, i) => makeJob(q, location, i));
     jobs.push(...batch);
     raw_counts.push({
       source: 'mock',
