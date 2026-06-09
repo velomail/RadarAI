@@ -25,6 +25,7 @@ type Props = {
 const ERROR_MESSAGES: Record<string, string> = {
   daily_limit: "You've used all 5 searches today. Resets at midnight UTC.",
   resume_missing: 'Upload a resume before searching.',
+  run_create_failed: 'Could not start this search. Try again in a moment.',
 };
 
 export function AppSearchForm({ profile, resumeFilename, error }: Props) {

@@ -5,7 +5,6 @@ import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { runEngine } from '@/lib/engine';
 import { consumeGuestQuery } from '@/lib/guest/consume-guest-query';
-import { getGuestUsage } from '@/lib/guest/guest-usage';
 import { getOrCreateGuestSessionId } from '@/lib/guest/session';
 import { checkRateLimit, getClientIpFromRequest } from '@/lib/rate-limit';
 import { TRY_PAGE } from '@/lib/constants';
@@ -22,15 +21,8 @@ export async function startGuestSearch(formData: FormData) {
   }
 
   const sessionId = await getOrCreateGuestSessionId();
-  let allowed = false;
-  try {
-    const quota = await consumeGuestQuery(sessionId);
-    allowed = quota.allowed;
-  } catch {
-    const usage = await getGuestUsage(sessionId);
-    allowed = usage.allowed;
-  }
-  if (!allowed) {
+  const quota = await consumeGuestQuery(sessionId);
+  if (!quota.allowed) {
     redirect(`${TRY_PAGE}?error=daily_limit`);
   }
 
@@ -72,7 +64,7 @@ export async function startGuestSearch(formData: FormData) {
     .single();
 
   if (runErr || !run) {
-    throw new Error(runErr?.message || 'run_create_failed');
+    redirect(`${TRY_PAGE}?error=${encodeURIComponent(runErr?.message || 'run_create_failed')}`);
   }
 
   after(async () => {

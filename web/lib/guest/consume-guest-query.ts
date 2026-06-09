@@ -1,4 +1,5 @@
 import { GUEST_DAILY_QUERY_LIMIT } from '@/lib/usage/constants';
+import { getGuestUsage } from '@/lib/guest/guest-usage';
 import { supabaseServiceRole } from '@/lib/supabase/server';
 
 export type ConsumeGuestQueryResult = {
@@ -19,7 +20,14 @@ export async function consumeGuestQuery(
   });
 
   if (error) {
-    throw new Error(`consume_guest_query failed: ${error.message}`);
+    console.warn('consume_guest_query RPC failed, using fallback:', error.message);
+    const usage = await getGuestUsage(sessionId);
+    return {
+      allowed: usage.allowed,
+      queries_today: usage.queries_today,
+      limit: usage.limit,
+      remaining: usage.remaining,
+    };
   }
 
   const row = (data ?? {}) as Partial<ConsumeGuestQueryResult>;

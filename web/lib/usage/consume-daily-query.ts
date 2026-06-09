@@ -9,6 +9,62 @@ export type ConsumeDailyQueryResult = {
   remaining: number;
 };
 
+function utcDayStart(): string {
+  const today = new Date().toISOString().slice(0, 10);
+  return `${today}T00:00:00.000Z`;
+}
+
+/** Count today's runs when the consume_daily_query RPC is unavailable. */
+async function fallbackConsumeDailyQuery(
+  userId: string,
+  limit = FREE_DAILY_QUERY_LIMIT,
+): Promise<ConsumeDailyQueryResult> {
+  const sb = supabaseServiceRole();
+  const { data: usageRow } = await sb
+    .from('user_usage')
+    .select('plan')
+    .eq('user_id', userId)
+    .maybeSingle();
+
+  const plan = usageRow?.plan === 'pro' ? 'pro' : 'free';
+  if (plan === 'pro') {
+    return {
+      allowed: true,
+      plan,
+      queries_today: 0,
+      limit,
+      remaining: -1,
+    };
+  }
+
+  const { count, error } = await sb
+    .from('runs')
+    .select('id', { count: 'exact', head: true })
+    .eq('user_id', userId)
+    .gte('started_at', utcDayStart());
+
+  if (error) {
+    console.warn('fallbackConsumeDailyQuery: runs count failed:', error.message);
+    return {
+      allowed: true,
+      plan,
+      queries_today: 0,
+      limit,
+      remaining: limit,
+    };
+  }
+
+  const queriesToday = count ?? 0;
+  const remaining = Math.max(0, limit - queriesToday);
+  return {
+    allowed: queriesToday < limit,
+    plan,
+    queries_today: queriesToday,
+    limit,
+    remaining,
+  };
+}
+
 export async function consumeDailyQuery(
   userId: string,
   limit = FREE_DAILY_QUERY_LIMIT,
@@ -20,7 +76,8 @@ export async function consumeDailyQuery(
   });
 
   if (error) {
-    throw new Error(`consume_daily_query failed: ${error.message}`);
+    console.warn('consume_daily_query RPC failed, using fallback:', error.message);
+    return fallbackConsumeDailyQuery(userId, limit);
   }
 
   const row = (data ?? {}) as Partial<ConsumeDailyQueryResult>;

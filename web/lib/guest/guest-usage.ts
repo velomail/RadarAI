@@ -17,14 +17,14 @@ export async function getGuestUsage(sessionId: string): Promise<GuestUsage> {
   const sb = supabaseServiceRole();
   const today = new Date().toISOString().slice(0, 10);
 
-  const { data: usageRow } = await sb
+  let queriesToday = 0;
+  const { data: usageRow, error: usageErr } = await sb
     .from('guest_usage')
     .select('queries_today, last_query_date')
     .eq('session_id', sessionId)
     .maybeSingle();
 
-  let queriesToday = 0;
-  if (usageRow && usageRow.last_query_date === today) {
+  if (!usageErr && usageRow && usageRow.last_query_date === today) {
     queriesToday = usageRow.queries_today ?? 0;
   } else {
     const { count, error } = await sb
@@ -34,9 +34,11 @@ export async function getGuestUsage(sessionId: string): Promise<GuestUsage> {
       .gte('started_at', utcDayStart());
 
     if (error) {
-      throw new Error(`guest_usage_failed: ${error.message}`);
+      console.warn('guest_usage: runs count failed:', error.message);
+      queriesToday = 0;
+    } else {
+      queriesToday = count ?? 0;
     }
-    queriesToday = count ?? 0;
   }
   const remaining = Math.max(0, GUEST_DAILY_QUERY_LIMIT - queriesToday);
 

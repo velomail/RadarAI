@@ -58,7 +58,9 @@ export async function startProfileSearchRun(profileId: string, userId: string): 
     })
     .select('id')
     .single();
-  if (runErr || !run) throw new Error(runErr?.message || 'run_create_failed');
+  if (runErr || !run) {
+    redirect(`${SEARCH_PAGE}?error=${encodeURIComponent(runErr?.message || 'run_create_failed')}`);
+  }
 
   after(async () => {
     await runEngine({
@@ -83,17 +85,28 @@ export async function startProfileSearchRun(profileId: string, userId: string): 
 /** Save criteria from the form, then start a job scan. Results load on the same page. */
 export async function runJobSearch(profileId: string, formData: FormData) {
   const user = await getUser();
-  const searchFocus = parseSearchFocus(formData);
-  const queries = parseQueriesFromForm(formData, searchFocus);
+  let searchFocus: string;
+  let queries: string[];
+  try {
+    searchFocus = parseSearchFocus(formData);
+    queries = parseQueriesFromForm(formData, searchFocus);
+  } catch (e) {
+    redirect(`${SEARCH_PAGE}?error=${encodeURIComponent((e as Error).message || 'invalid_search')}`);
+  }
 
-  const parsed = Schema.parse({
-    name: formData.get('name')?.toString() ?? '',
-    location: formData.get('location')?.toString() ?? '',
-    remote_only: formData.get('remote_only')?.toString(),
-    min_score: formData.get('min_score')?.toString() ?? '70',
-    schedule_cron: formData.get('schedule_cron')?.toString(),
-    notify_email: formData.get('notify_email')?.toString()?.trim() || '',
-  });
+  let parsed: z.infer<typeof Schema>;
+  try {
+    parsed = Schema.parse({
+      name: formData.get('name')?.toString() ?? '',
+      location: formData.get('location')?.toString() ?? '',
+      remote_only: formData.get('remote_only')?.toString(),
+      min_score: formData.get('min_score')?.toString() ?? '70',
+      schedule_cron: formData.get('schedule_cron')?.toString(),
+      notify_email: formData.get('notify_email')?.toString()?.trim() || '',
+    });
+  } catch (e) {
+    redirect(`${SEARCH_PAGE}?error=${encodeURIComponent((e as Error).message || 'invalid_form')}`);
+  }
 
   const scheduleCron = await resolveScheduleCron(user.id, parsed.schedule_cron);
 
@@ -118,7 +131,9 @@ export async function runJobSearch(profileId: string, formData: FormData) {
       notify_email: parsed.notify_email || null,
     })
     .eq('id', profileId);
-  if (updateErr) throw new Error(updateErr.message);
+  if (updateErr) {
+    redirect(`${SEARCH_PAGE}?error=${encodeURIComponent(updateErr.message)}`);
+  }
 
   const runId = await startProfileSearchRun(profileId, user.id);
   revalidatePath(SEARCH_PAGE);
